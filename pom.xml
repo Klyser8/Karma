@@ -9,8 +9,6 @@
     <version>2.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Karma</name>
-
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,6 +50,26 @@
             </resource>
         </resources>
     </build>
+
+    <name>Karma</name>
+    <description>See how good or bad a player behaves in your Minecraft server,
+        with this score-alignment based system.</description>
+    <url>https://github.com/Klyser8/Karma</url>
+
+    <developers>
+        <developer>
+            <name>Thomas Romano</name>
+            <email>tomrom99@gmail.com</email>
+            <organization>com.github.klyser8</organization>
+            <organizationUrl>https://github.com/Klyser8/Karma</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Klyser8/Karma.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Klyser8/Karma.git</developerConnection>
+        <url>https://github.com/Klyser8/Karma</url>
+    </scm>
 
     <repositories>
         <repository>
