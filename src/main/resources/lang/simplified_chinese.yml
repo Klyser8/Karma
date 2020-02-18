@@ -1,0 +1,90 @@
+###语言文件 - 简体中文###
+###请勿修改介于 < > 之间的内容###
+###颜色代码
+#&0 - 黑色
+#&1 - 深蓝
+#&2 - 深绿
+#&3 - 湖蓝
+#&4 - 深红
+#&5 - 紫色
+#&6 - 金色
+#&7 - 灰色
+#&8 - 深灰
+#&9 - 蓝色
+#&a - 绿色
+#&b - 天蓝
+#&c - 红色
+#&d - 粉色
+#&e - 黄色
+#&f - 白色
+#&r - 重置
+#&l - 粗体
+#&m - 删除线
+#&n - 下划线
+#&o - 斜体
+
+KARMA_RELOAD: "&d[业] &r成功重载插件!"
+KARMA_SAVE: "&d[业] &r已成功手动保存数据文件!"
+KARMA_OFFLINE_MESSAGES: "&d[业] &7在您离线时: "
+
+KARMA_HELP_HELP: "&d<COMMAND> &r显示这条帮助信息。"
+KARMA_HELP_RELOAD: "&d<COMMAND> &r重载插件。"
+KARMA_HELP_SAVE: "&d<COMMAND> &r保存该插件数据。"
+KARMA_HELP_VIEW: "&d<COMMAND> &r查看玩家的业。"
+KARMA_HELP_ADD: "&d<COMMAND> &r增加玩家的业。"
+KARMA_HELP_REMOVE: "&d<COMMAND> &r移除玩家的业。"
+KARMA_HELP_SET: "&d<COMMAND> &r设置玩家的业为指定的数值。"
+KARMA_HELP_CLEAR: "&d<COMMAND> &r清空玩家的业。"
+KARMA_HELP_LIST: "&d<COMMAND> &r显示所有在线玩家的业。"
+
+KARMA_ERROR_MISUSE: "&4这不是 &c/karma &4的正确用法，请再次尝试。"
+KARMA_ERROR_UNKNOWN_COMMAND: "&4未知指令。 请输入 &c/karma help &4获取帮助。"
+KARMA_ERROR_NO_PERMISSION: "&4您没有权限使用这个指令"
+KARMA_ERROR_UNKNOWN_PLAYER: "&4找不到这名玩家。"
+KARMA_ERROR_INVALID_NUMBER: "&4无效的数字，或该数字超过了业的上限 (2147483647/-2147483647)。"
+
+KARMA_ADDED_SUCCESSFULLY_SELF: "&d[业] &f您给予了自己&a<NUMBER>点&f业。"
+KARMA_REMOVED_SUCCESSFULLY_SELF: "&d[业] &f您移除了自己&c<NUMBER>点&f业。"
+KARMA_SET_SUCCESSFULLY_SELF: "&d[业] &f您将自己的业设置为&e<NUMBER>。"
+KARMA_CLEARED_SUCCESSFULLY_SELF: "&d[业] &f您清空了您的业。"
+KARMA_VIEW_SCORE_SELF: "&d[业] &f您的业力为 &e<NUMBER>"
+KARMA_VIEW_ALIGNMENT_SELF: "&d[业] &f您的阵营为 <ALIGNMENT> &f。"
+
+KARMA_ADDED_SUCCESSFULLY: "&d[业] &f已给予&e<PLAYER> &a<NUMBER>点&f业"
+KARMA_REMOVED_SUCCESSFULLY: "&d[业] &f已移除&e<PLAYER>的&c<NUMBER>点&f业。"
+KARMA_SET_SUCCESSFULLY: "&d[业] &f已将&e<PLAYER>&f的业设置为&e<NUMBER>。"
+KARMA_CLEARED_SUCCESSFULLY: "&d[业] &f已清空&e<PLAYER>的业。"
+KARMA_VIEW_SCORE: "&d[业] &e<PLAYER>&f的业为&e<NUMBER>"
+KARMA_VIEW_ALIGNMENT: "&d[业] &e<PLAYER>&f的阵营为<ALIGNMENT> &f。"
+KARMA_VIEW_LIST_PLAYER: "- &d<PLAYER> &r业力: &e<SCORE>&r - &d<PLAYER> &r阵营: <ALIGNMENT>"
+
+
+###业力阵营### - 从坏到好排序
+EVIL: "&0[黑]"
+VILE: "&4[邪]"
+MEAN: "&c[恶]"
+RUDE: "&6[浊]"
+NEUTRAL: "&7[平]"
+KIND: "&9[清]"
+GOOD: "&3[善]"
+PURE: "&b[正]"
+BEST: "&f[白]"
+
+
+###指令###
+
+KARMA_RELOAD_COMMAND: "reload"
+KARMA_SAVE_COMMAND: "save"
+KARMA_HELP_COMMAND: "help"
+
+KARMA_ADD_COMMAND: "add"
+KARMA_REMOVE_COMMAND: "remove"
+KARMA_SET_COMMAND: "set"
+KARMA_CLEAR_COMMAND: "clear"
+KARMA_VIEW_COMMAND: "view"
+KARMA_LIST_COMMAND: "list"
+
+###语言###
+
+NUMBER: "数字"
+PLAYER: "玩家"

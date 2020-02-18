@@ -1,0 +1,12 @@
+name: Karma
+version: ${project.version}
+main: me.klyser8.karma.Karma
+api-version: 1.13
+authors: [Klyser8]
+softdepend: [PlaceholderAPI, Vault]
+description: See how good or bad a player behaves in your server, with this score-alignment based system.
+
+commands:
+  karma:
+    description: Default karma command
+    usage: /karma [add|remove|set|clear]

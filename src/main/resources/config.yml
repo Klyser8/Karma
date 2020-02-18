@@ -1,0 +1,233 @@
+### AVAILABLE LANGUAGES - English, Italian, Simplified Chinese.
+# When updating the plugin, it is important to delete the whole language folder in order for the plugin to update properly.
+Language: English
+
+Debugging: false #Shows additional messages and information related to the plugin in the console. Enabling it may cause lag.
+
+###DATA STORAGE SETTINGS###
+Autosave Timer: 120 #In seconds, it is recommended to keep this number above 60 in order to avoid possible lag spikes.
+
+#--------------------KARMA ALIGNMENTS SETTINGS---------------------#
+
+Alignment Thresholds: #Karma Score alignment thresholds, AKA the current alignment based on the amount of Karma a player has. The alignments' names can be changed in the language files.
+#Always write the lower number first and the higher number second.
+#The lower threshold (First number) of the EVIL alignment and the higher threshold (second number) of the BEST alignment will be the higher Karma points obtainable.
+  EVIL: [-2147483647, -50000]
+  VILE: [-49999, -30000] #E.G. This alignment is obtained when a player's karma is between the first number and the second number.
+  MEAN: [-29999, -15000]
+  RUDE: [-14999, -5000]
+
+  NEUTRAL: [-4999, 9999]
+
+  KIND: [10000, 24999]
+  GOOD: [25000, 49999]
+  PURE: [50000, 99999]
+  BEST: [100000, 2147483647]  #2147483647 is the highest/lowest integer usable.
+
+#Set to true if you want alignments to show next to a player's name, or false if you want the player's name color to change based on their alignment.
+Show Alignments: true
+
+#Where alignments should be visible.
+
+Tablist Alignment: true #Works only if there is no 'tablist' plugin in the server. If such plugin is enabled, use the PAPI %karma_alignment%/%karma_aligned_name% placeholder instead
+Chat Alignment: true
+Display Name Alignment: false #Currently not implemented.
+
+#------------------------KARMA SETTINGS--------------------------#
+
+#Karma changed by being online in the server. In order to change this, a player will have to quit and join the server.
+Passive Karma Gain:
+  Enabled: true
+  Amount: 1.0
+  Timer: 300 #In seconds
+
+#Karma changed by killing passive entities in the server.
+Passive Mob Killing:
+  Enabled: true
+  Amount: -1.0
+
+#Karma changed by killing monsters in the server.
+Monster Killing:
+  Enabled: true
+  Amount: 1.0
+
+#Karma changed by killing friendly entities in the server.
+Friendly Mob Killing:
+  Enabled: true
+  Amount: -10.0
+
+#Karma changed by killing players in the server. The amount of Karma gained can be changed depending on the killed player's alignment.
+Player Killing:
+  Enabled: false
+  Alignment Amount:
+    EVIL: 50.0
+    VILE: 25.0
+    MEAN: 15.0
+    RUDE: 5.0
+
+    NEUTRAL: 0.0
+
+    KIND: -15.0
+    GOOD: -50.0
+    PURE: -100.0
+    BEST: -250.0
+
+#Karma changed by trading with villagers
+Villager Trading:
+  Enabled: true
+  Amount: 2.0
+
+#Karma changed by hitting a villager
+Villager Hitting:
+  Enabled: true
+  Amount: -5.0
+
+#Karma changed when entity is tamed
+Entity Tamed:
+  Enabled: true
+  Amount: 10.0
+
+#Karma changed when entity is fed
+Entity Fed:
+  Enabled: true
+  Amount: 1.0
+
+#Karma changed when server is voted. Not implemented
+Server Voted:
+  Enabled: true
+  Amount: 50.0
+
+#Karma changed when golden carrot is consumed
+Golden Carrot Consumed:
+  Enabled: true
+  Amount: 5.0
+
+#Karma changed by placing blocks. Any block found here may be added, followed by the amount of karma to be added-removed: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+Placing Blocks:
+  Enabled: false
+  Blocks:
+    TNT: -1.0
+    LAVA: -1.0
+
+#Karma changed by breaking blocks. Any block found here may be added, followed by the amount of karma to be added-removed.
+#List of blocks available for 1.13+: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+#List of blocks available for 1.8-1.12.2: https://helpch.at/docs/1.12.2/index.html?org/bukkit/Material.html
+Breaking Blocks:
+  Enabled: false
+  Blocks:
+    TNT: 1.0
+
+#Maximum amount of karma which can be obtained every x seconds.
+Karma Limit:
+  Max Amount: 150.0
+  Timer: 3600
+
+#Percentage to decrease the amount of Karma GAINED if it is of the same source as the previous time Karma was gained.
+Percentage Decrease:
+  Enabled: true
+  Amount: 50 #<-- 50%
+
+#Percentage to increase the amount of karma LOST if it is of the same source as the previous time Karma was lost.
+Percentage Increase:
+  Enabled: true
+  Amount: 250 #<-- 250%
+
+#--------------------KARMA PERKS - REPERCUSSIONS---------------------#
+
+#The written numbers will indicate the chance/amount for each respective parameter.
+#Each parameter will accept 4 values, each for each positive/negative alignment.
+
+#-----PERKS-----#
+#Written values are for the following alignments, in the written order: Kind, Good, Pure, Best.
+
+Effects:
+  Positive:   #Perks that being of a good alignment are given to players.
+      #Whether players should have the possibility of gaining extra enchantments upon enchanting.
+    Enchanting: [20, 30, 40, 50]   #Base % chance of the extra enchantment being added. Increases by 10% per positive Alignment level.
+      #Whether players should gain extra experience upon picking some up.
+    Experience: [1.25, 1.50, 1.75, 2.0]  #Multiplier assigned to the amount of experience gained. Increases by 0.25 per positive Alignment level.
+      #Whether mobs killed by well-aligned players should have a possibility to drop extra loot.
+    Drops: [20, 40, 60, 80]   #Base % chance of extra loot being generated. Increases by 20% per positive Alignment level.
+      #Whether players should have a possibility of non-smeltable ores to re-generate upon being mined.
+    Mining: [5, 10, 15, 20]   #Base % chance of the ore re-generating, 1.5 seconds after being broken. Increases by 5% per positive Alignment level.
+      #Whether players should have a multiplier applied to the Karma they gain.
+    Karma Gained: [0, 0, 0, 0]   #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per positive Alignment level.
+      #Whether player should have a multiplier applied to the Karma they lose.
+    Karma Lost: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per positive Alignment level.
+      #Whether a player should have a multiplier applied to the money they earn. REQUIRES VAULT TO FUNCTION!!!
+    Money Gained: [0, 0, 0, 0]   #Amount to multiply gained money by. Increases by 0.5 per positive Alignment level
+      #Whether the money a player loses on death should be altered. REQUIRES VAULT TO FUNCTION!!!
+    Money Lost: [0, 0, 0, 0]   #Multiplier assigned to the amount of money lost. Decreases by 0.1 per positive Alignment level
+
+#--REPERCUSSIONS--#
+#Written values are for the following alignments, in the written order: Rude, Mean, Vile, Evil.
+
+  Negative:   #Repercussions that being of a bad alignment has on the players.
+      #Whether players should have the possibility of losing one enchantment upon enchanting. Additionally, enchanted items can gain curses.
+    Enchanting: [50, 60, 70, 80]   #Base % chance of an enchantment being removed. Increases by 10% per Negative Alignment level. Half of the value written here will be the chance of cursing the enchanted item.
+      #Whether players should gain less experience upon picking some up.
+    Experience: [0.75, 0.65, 0.55, 0.45]  #Multiplier assigned to the amount of experience gained. Decreases by 0.1 per negative Alignment level.
+      #Whether mobs killed by players should have the possibility to drop no loot/no experience.
+    Drops: [20, 30, 40, 50]   #Base % chance of no loot being generated. Increases by 10% per negative Alignment level.
+      #Whether players should have the possibility of any ore to drop cobblestone instead of its respective mineral upon being mined.
+    Mining: [20, 30, 40, 50]   #Base % chance of the ore dropping cobblestone. Increases by 10% per negative Alignment level.
+      #Whether players should have a multiplier applied to the Karma they gain.
+    Karma Gained: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per negative Alignment level.
+      #Whether player should have a multiplier applied to the Karma they lose.
+    Karma Lost: [0, 0, 0, 0]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per negative Alignment level.
+      #Whether players should have the chance of being struck by a lightning during a thunderstorm, if they are outside.
+    Lightning: [8, 12, 16, 20]   #Base % chance for a player to be struck by a lightning, shortly after another lightning strikes a location far from the player. Increases by 4% per negative Alignment level.
+      #Whether a player should have a multiplier applied to the money they earn. REQUIRES VAULT TO FUNCTION!!!
+    Money Gained: [0, 0, 0, 0]   #0.75   #Multiplier assigned to the amount of money earned at any moment. Decreases by 0.1 per negative Alignment level
+      #Whether the money a player loses on death should be altered. REQUIRES VAULT TO FUNCTION!!!
+    Money Lost: [0, 0, 0, 0]   #1.25 #Multiplier assigned to the amount of money lost. Increases by 0.25 per negative Alignment level
+      #Whether certain mobs should be angered in the presence of the player.
+    Mobs Anger:
+      Bee: [50, 55, 60, 65] #Base % chance of a bee near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
+      Wolf: [25, 30, 35, 40] #Base % chance of a wolf near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
+      Pigman: [5, 10, 15, 20] #Base % chance of a wolf near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
+
+#--------------------MISCELLANEOUS-------------------#
+
+#Whether Karma can be gained in creative/spectator mode or not.
+Creative Mode Karma: false
+
+#Whether
+Use Vault: false
+
+#Worlds in which Karma cannot be gained.
+Disabled Worlds:
+  #- worldTest
+  #- world1
+
+#Any commands that should be ran by the console once the player reaches an alignment.
+#This can be used to add/remove permissions from a player once they reach an alignment, if the server is using a permissions plugin.
+#<PLAYER> will be replaced with the involved player's name.
+Alignment Commands:
+  EVIL:
+    - "say I am EVIL"
+    - "say <PLAYER> !!!"
+  VILE:
+    - "say I am VILE"
+    - "say <PLAYER> !!!"
+  MEAN:
+    - "say I am MEAN"
+    - "say <PLAYER> !!!"
+  RUDE:
+    - "say I am RUDE"
+    - "say <PLAYER> !!!"
+  NEUTRAL:
+    - "say I am INEVITABLE"
+    - "say <PLAYER> !!!"
+  KIND:
+    - "say I am KIND"
+    - "say <PLAYER> !!!"
+  GOOD:
+    - "say I am GOOD"
+    - "say <PLAYER> !!!"
+  PURE:
+    - "say I am PURE"
+    - "say <PLAYER> !!!"
+  BEST:
+    - "say I am the BEST"
+    - "say <PLAYER> !!!"

@@ -1,0 +1,91 @@
+###LINGUAGGIO - ITALIANO###
+###Cio' che e' scritto tra <QUESTI SIMBOLI> non deve essere toccato###
+###CODICI COLORI - Default di minecraft.
+#&0 - Nero
+#&1 - Blu scuro
+#&2 - Verde scuro
+#&3 - Verde acqua scuro
+#&4 - Rosso scuro
+#&5 - Viola
+#&6 - Oro
+#&7 - Grigio
+#&8 - Grigio scuro
+#&9 - Blu
+#&a - Verde
+#&b - Verde acqua
+#&c - Rosso
+#&d - Rosa
+#&e - Giallo
+#&f - Rosa
+#&r - Reset
+#&l - Grassetto
+#&m - Barrato
+#&n - Sottolineato
+#&o - Corsivo
+
+KARMA_RELOAD: "&d[Karma] &rFile di configurazione, dati, linguaggio e permessi ricaricati!"
+KARMA_SAVE: "&d[Karma] &rDati salvati manualmente!"
+KARMA_OFFLINE_MESSAGES: "&d[Karma] &7Mentre eri offline: "
+
+KARMA_HELP_HELP: "&d<COMMAND> &rmostra questo messaggio."
+KARMA_HELP_RELOAD: "&d<COMMAND> &rricarica il plugin."
+KARMA_HELP_SAVE: "&d<COMMAND> &rsalva i dati del plugin."
+KARMA_HELP_VIEW: "&d<COMMAND> &rmostra il Karma di un giocatore."
+KARMA_HELP_ADD: "&d<COMMAND> &raaggiunge Karma ad un giocatore."
+KARMA_HELP_REMOVE: "&d<COMMAND> &rrimuove Karma da un giocatore."
+KARMA_HELP_SET: "&d<COMMAND> &rimposta il Karma di un giocatore ad una cifra."
+KARMA_HELP_CLEAR: "&d<COMMAND> &razzera il Karma di un giocatore."
+KARMA_HELP_LIST: "&d<COMMAND> &rVisualizza una lista di giocatori online, in base al Karma."
+
+KARMA_ERROR_UNKNOWN_COMMAND: "&4Comando sconosciuto. Digita &c/karma aiuto &4per ricevere aiuto."
+KARMA_ERROR_MISUSE: "&4Uso errato del comando &c/karma&4, ritenta."
+KARMA_ERROR_NO_PERMISSION: "&4Non hai i permessi per utilizzare questo comando.!"
+KARMA_ERROR_UNKNOWN_PLAYER: "&4Il giocatore specificato non e' online."
+KARMA_ERROR_INVALID_NUMBER: "&4Numero invalido o supera il limite di karma (2147483647/-2147483647)."
+
+KARMA_ADDED_SUCCESSFULLY_SELF: "&d[Karma] &fTi sei aggiunto &a<NUMBER> &fpunti Karma."
+KARMA_REMOVED_SUCCESSFULLY_SELF: "&d[Karma] &fTi sei rimosso &c<NUMBER> &fpunti Karma."
+KARMA_SET_SUCCESSFULLY_SELF: "&d[Karma] &fHai impostato il tuo Karma a &e<NUMBER>."
+KARMA_CLEARED_SUCCESSFULLY_SELF: "&d[Karma] &fHai azzerato il tuo Karma."
+KARMA_VIEW_SCORE_SELF: "&d[Karma] &fIl tuo Karma e' &e<NUMBER>"
+KARMA_VIEW_ALIGNMENT_SELF: "&d[Karma] &fIl tuo allineamento e' <ALIGNMENT> &f."
+
+KARMA_ADDED_SUCCESSFULLY: "&d[Karma] &fAggiunto &a<NUMBER> &fpunti Karma a &e<PLAYER>."
+KARMA_REMOVED_SUCCESSFULLY: "&d[Karma] &fRimosso &c<NUMBER> &fpunti Karma da &e<PLAYER>."
+KARMA_SET_SUCCESSFULLY: "&d[Karma] &fImpostato il Karma di &e<PLAYER>&f a &e<NUMBER>."
+KARMA_CLEARED_SUCCESSFULLY: "&d[Karma] &fAzzerato il Karma di &e<PLAYER>&r."
+KARMA_VIEW_SCORE: "&d[Karma] &fIl Karma di &e<PLAYER>&f e' &e<NUMBER>"
+KARMA_VIEW_ALIGNMENT: "&d[Karma] &fL'allineamento di &e<PLAYER>&f e' <ALIGNMENT> &f."
+KARMA_VIEW_LIST_PLAYER: "- &d<PLAYER> &rKarma: &e<SCORE>&r - &d<PLAYER> &rAllineamento: <ALIGNMENT>"
+
+
+###ALLINEAMENTI KARMA### - Dal peggiore al migliore
+EVIL: "&4[Crudele]"
+VILE: "&c[Vile]"
+MEAN: "&6[Gretto]"
+RUDE: "&e[Aggressivo]"
+NEUTRAL: "&7[Neutrale]"
+KIND: "&a[Gentile]"
+GOOD: "&2[Buono]"
+PURE: "&9[Puro]"
+BEST: "&b[Migliore]"
+
+
+###COMANDI###
+
+KARMA_RELOAD_COMMAND: "ricarica"
+KARMA_SAVE_COMMAND: "salva"
+KARMA_HELP_COMMAND: "aiuto"
+
+KARMA_ADD_COMMAND: "aggiungi"
+KARMA_REMOVE_COMMAND: "rimuovi"
+KARMA_SET_COMMAND: "imposta"
+KARMA_CLEAR_COMMAND: "azzera"
+KARMA_VIEW_COMMAND: "mostra"
+KARMA_LIST_COMMAND: "lista"
+
+
+###PAROLE###
+
+NUMBER: "Numero"
+PLAYER: "Giocatore"
