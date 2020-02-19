@@ -31,7 +31,7 @@ KARMA_ERROR_MISUSE: "&4Wrong usage of the command &c/karma&4, try again."
 KARMA_ERROR_UNKNOWN_COMMAND: "&4Unknown command. Type &c/karma help &4for help."
 KARMA_ERROR_NO_PERMISSION: "&4You don't have the permission to use this command!"
 KARMA_ERROR_UNKNOWN_PLAYER: "&4The specified player never played on this server."
-KARMA_ERROR_INVALID_NUMBER: "&4Invalid number or the amount exceeds the player's Karma limit (2147483647/-2147483647)."
+KARMA_ERROR_INVALID_NUMBER: "&4Invalid number/the amount exceeds the Karma limit (<LOW_LIMIT>/<HIGH_LIMIT>)."
 
 KARMA_HELP_HELP: "&d<COMMAND> &rshows this message."
 KARMA_HELP_RELOAD: "&d<COMMAND> &rreloads the plugin."

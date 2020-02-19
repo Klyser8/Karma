@@ -41,7 +41,7 @@ KARMA_ERROR_MISUSE: "&4这不是 &c/karma &4的正确用法，请再次尝试。
 KARMA_ERROR_UNKNOWN_COMMAND: "&4未知指令。 请输入 &c/karma help &4获取帮助。"
 KARMA_ERROR_NO_PERMISSION: "&4您没有权限使用这个指令"
 KARMA_ERROR_UNKNOWN_PLAYER: "&4找不到这名玩家。"
-KARMA_ERROR_INVALID_NUMBER: "&4无效的数字，或该数字超过了业的上限 (2147483647/-2147483647)。"
+KARMA_ERROR_INVALID_NUMBER: "&4无效的数字，或该数字超过了业的上限 (<LOW_LIMIT>/<HIGH_LIMIT>)。"
 
 KARMA_ADDED_SUCCESSFULLY_SELF: "&d[业] &f您给予了自己&a<NUMBER>点&f业。"
 KARMA_REMOVED_SUCCESSFULLY_SELF: "&d[业] &f您移除了自己&c<NUMBER>点&f业。"

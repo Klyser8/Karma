@@ -420,6 +420,10 @@ public class KarmaEffectsHandler implements Listener {
 
     @EventHandler
     public void onKarmaGain(KarmaGainEvent event) {
+        if (event.getNewKarma() > Karma.karmaHighLimit) {
+            event.setCancelled(true);
+            return;
+        }
         Player player = event.getPlayer();
         KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();
         double multiplier;
@@ -465,6 +469,10 @@ public class KarmaEffectsHandler implements Listener {
 
     @EventHandler
     public void onKarmaLose(KarmaLossEvent event) {
+        if (event.getNewKarma() < Karma.karmaLowLimit) {
+            event.setCancelled(true);
+            return;
+        }
         Player player = event.getPlayer();
         KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();
         double multiplier;

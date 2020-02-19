@@ -18,6 +18,8 @@ import static org.bukkit.Bukkit.getPluginManager;
 
 public final class Karma extends JavaPlugin {
 
+    public static int karmaHighLimit, karmaLowLimit;
+
     public boolean passiveKarmaGainEnabled;
     public double passiveKarmaGainAmount;
     public int passiveKarmaGainTimer;
@@ -114,8 +116,8 @@ public final class Karma extends JavaPlugin {
         alignmentKarmaChangeMap = new HashMap<>();
         aggroRunnables = new HashMap<>();
 
-        setupPreferences();
         settings.setupLanguage();
+        setupPreferences();
 
         getServer().getPluginManager().registerEvents(new StorageHandler(this), this);
         getServer().getPluginManager().registerEvents(new KarmaHandler(this), this);
@@ -269,6 +271,9 @@ public final class Karma extends JavaPlugin {
         for (KarmaAlignment alignment : KarmaAlignment.values()) {
             alignmentKarmaChangeMap.put(alignment, getConfig().getDouble("Player Killing.Alignment Amount." + alignment.toString()));
         }
+
+        karmaHighLimit = KarmaAlignment.BEST.getHighBoundary();
+        karmaLowLimit = KarmaAlignment.EVIL.getLowBoundary();
     }
 
     public String getLanguage() {

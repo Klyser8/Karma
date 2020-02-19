@@ -41,7 +41,7 @@ KARMA_ERROR_UNKNOWN_COMMAND: "&4Comando sconosciuto. Digita &c/karma aiuto &4per
 KARMA_ERROR_MISUSE: "&4Uso errato del comando &c/karma&4, ritenta."
 KARMA_ERROR_NO_PERMISSION: "&4Non hai i permessi per utilizzare questo comando.!"
 KARMA_ERROR_UNKNOWN_PLAYER: "&4Il giocatore specificato non e' online."
-KARMA_ERROR_INVALID_NUMBER: "&4Numero invalido o supera il limite di karma (2147483647/-2147483647)."
+KARMA_ERROR_INVALID_NUMBER: "&4Numero invalido/il totale supera il limite di Karma (<LOW_LIMIT>/<HIGH_LIMIT>)."
 
 KARMA_ADDED_SUCCESSFULLY_SELF: "&d[Karma] &fTi sei aggiunto &a<NUMBER> &fpunti Karma."
 KARMA_REMOVED_SUCCESSFULLY_SELF: "&d[Karma] &fTi sei rimosso &c<NUMBER> &fpunti Karma."

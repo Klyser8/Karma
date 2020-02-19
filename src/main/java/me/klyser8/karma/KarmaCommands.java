@@ -125,25 +125,32 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                             if (args.length == 1) {
                                 sender.sendMessage(color(KARMA_ERROR_MISUSE.getMessage()));
                             } else if (args.length == 2) {
-                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(((Player) sender).getUniqueId()).getKarmaScore() + Double.parseDouble(args[1]) < 2147483647) {
+                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(((Player) sender).getUniqueId()).getKarmaScore() + Double.parseDouble(args[1]) <= Karma.karmaHighLimit) {
                                     karma.addKarmaScore(((Player) sender), Double.parseDouble(args[1]), KarmaSource.COMMAND);
                                     String message = KARMA_ADDED_SUCCESSFULLY_SELF.getMessage().replace("<NUMBER>", args[1]);
                                     sender.sendMessage(color(message));
                                 } else {
-                                    sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                    String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                            .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                            .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                    sender.sendMessage(color(message));
                                 }
                             } else if (args.length == 3) {
                                 if (Bukkit.getPlayerExact(args[2]) != null) {
                                     Player player = Bukkit.getPlayerExact(args[2]);
-                                    if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() + Double.parseDouble(args[1]) < 2147483647) {
+                                    if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() + Double.parseDouble(args[1]) <= Karma.karmaHighLimit) {
                                         if (Bukkit.getPlayerExact(args[2]).isOnline()) {
                                             karma.addKarmaScore(player, Double.parseDouble(args[1]), KarmaSource.COMMAND);
                                             String message = KARMA_ADDED_SUCCESSFULLY.getMessage().replace("<NUMBER>", args[1]).replace("<PLAYER>", player.getName());
                                             sender.sendMessage(color(message));
                                         } else
                                             sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
-                                    } else
-                                        sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                    } else {
+                                        String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                                .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                                .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                        sender.sendMessage(color(message));
+                                    }
                                 } else {
                                     sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
                                 }
@@ -158,17 +165,20 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                             if (args.length == 1) {
                                 sender.sendMessage(color(KARMA_ERROR_MISUSE.getMessage()));
                             } else if (args.length == 2) {
-                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(((Player) sender).getUniqueId()).getKarmaScore() - Double.parseDouble(args[1]) > -2147483647) {
+                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(((Player) sender).getUniqueId()).getKarmaScore() - Double.parseDouble(args[1]) >= Karma.karmaLowLimit) {
                                     karma.subtractKarmaScore(((Player) sender), Double.parseDouble(args[1]), KarmaSource.COMMAND);
                                     String message = KARMA_REMOVED_SUCCESSFULLY_SELF.getMessage().replace("<NUMBER>", args[1]);
                                     sender.sendMessage(color(message));
                                 } else {
-                                    sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                    String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                            .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                            .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                    sender.sendMessage(color(message));
                                 }
                             } else if (args.length == 3) {
                                 if (Bukkit.getPlayerExact(args[2]) != null) {
                                     Player player = Bukkit.getPlayerExact(args[2]);
-                                    if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() - Double.parseDouble(args[1]) > -2147483647) {
+                                    if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() - Double.parseDouble(args[1]) >= Karma.karmaLowLimit) {
                                         if (Bukkit.getPlayerExact(args[2]).isOnline()) {
                                             karma.subtractKarmaScore(player, Double.parseDouble(args[1]), KarmaSource.COMMAND);
                                             String message = KARMA_REMOVED_SUCCESSFULLY.getMessage().replace("<NUMBER>", args[1]).replace("<PLAYER>", player.getName());
@@ -176,8 +186,12 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                                         } else
                                             sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
 
-                                    } else
-                                        sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                    } else {
+                                        String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                                .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                                .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                        sender.sendMessage(color(message));
+                                    }
                                 } else {
                                     sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
                                 }
@@ -192,23 +206,30 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                             if (args.length == 1) {
                                 sender.sendMessage(color(KARMA_ERROR_MISUSE.getMessage()));
                             } else if (args.length == 2) {
-                                if ((isNegativeDouble(args[1]) || (isDouble(args[1])) && Double.parseDouble(args[1]) < 2147483647 && Double.parseDouble(args[1]) > -2147483647)) {
+                                if ((isNegativeDouble(args[1]) || (isDouble(args[1])) && Double.parseDouble(args[1]) <= Karma.karmaHighLimit && Double.parseDouble(args[1]) >= Karma.karmaLowLimit)) {
                                     karma.setKarmaScore(((Player) sender), Double.parseDouble(args[1]));
                                     String message = KARMA_SET_SUCCESSFULLY_SELF.getMessage().replace("<NUMBER>", args[1]);
                                     sender.sendMessage(color(message));
                                 } else {
-                                    sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                    String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                            .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                            .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                    sender.sendMessage(color(message));
                                 }
                             } else if (args.length == 3) {
                                 if (Bukkit.getPlayerExact(args[2]) != null) {
                                     if (Bukkit.getPlayerExact(args[2]).isOnline()) {
-                                        if ((isNegativeDouble(args[1]) || isDouble(args[1])) && Double.parseDouble(args[1]) < 2147483647 && Double.parseDouble(args[1]) > -2147483647) {
+                                        if ((isNegativeDouble(args[1]) || isDouble(args[1])) && Double.parseDouble(args[1]) <= Karma.karmaHighLimit && Double.parseDouble(args[1]) >= Karma.karmaLowLimit) {
                                             Player player = Bukkit.getPlayerExact(args[2]);
                                             karma.setKarmaScore(player, Double.parseDouble(args[1]));
                                             String message = KARMA_SET_SUCCESSFULLY.getMessage().replace("<NUMBER>", args[1]).replace("<PLAYER>", player.getName());
                                             sender.sendMessage(color(message));
-                                        } else
-                                            sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                        } else {
+                                            String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                                    .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                                    .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                            sender.sendMessage(color(message));
+                                        }
                                     } else
                                         sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
                                 } else {
@@ -314,15 +335,19 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                         } else if (args.length == 3) {
                             if (Bukkit.getPlayerExact(args[2]) != null) {
                                 Player player = Bukkit.getPlayerExact(args[2]);
-                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() + Double.parseDouble(args[1]) < 2147483647) {
+                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() + Double.parseDouble(args[1]) <= Karma.karmaHighLimit) {
                                     if (Bukkit.getPlayerExact(args[2]).isOnline()) {
                                         karma.addKarmaScore(player, Double.parseDouble(args[1]), KarmaSource.COMMAND);
                                         String message = KARMA_ADDED_SUCCESSFULLY.getMessage().replace("<NUMBER>", args[1]).replace("<PLAYER>", player.getName());
                                         sender.sendMessage(color(message));
                                     } else
                                         sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
-                                } else
-                                    sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                } else {
+                                    String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                            .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                            .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                    sender.sendMessage(color(message));
+                                }
                             } else {
                                 sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
                             }
@@ -336,7 +361,7 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                         } else if (args.length == 3) {
                             if (Bukkit.getPlayerExact(args[2]) != null) {
                                 Player player = Bukkit.getPlayerExact(args[2]);
-                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() - Double.parseDouble(args[1]) > -2147483647) {
+                                if (isDouble(args[1]) && plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaScore() - Double.parseDouble(args[1]) >= Karma.karmaLowLimit) {
                                     if (Bukkit.getPlayerExact(args[2]).isOnline()) {
                                         karma.subtractKarmaScore(player, Double.parseDouble(args[1]), KarmaSource.COMMAND);
                                         String message = KARMA_REMOVED_SUCCESSFULLY.getMessage().replace("<NUMBER>", args[1]).replace("<PLAYER>", player.getName());
@@ -344,8 +369,12 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                                     } else
                                         sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
 
-                                } else
-                                    sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                } else {
+                                    String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                            .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                            .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                    sender.sendMessage(color(message));
+                                }
                             } else {
                                 sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
                             }
@@ -359,13 +388,17 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
                         } else if (args.length == 3) {
                             if (Bukkit.getPlayerExact(args[2]) != null) {
                                 if (Bukkit.getPlayerExact(args[2]).isOnline()) {
-                                    if ((isNegativeDouble(args[1]) || isDouble(args[1])) && Double.parseDouble(args[1]) < 2147483647 && Double.parseDouble(args[1]) > -2147483647) {
+                                    if ((isNegativeDouble(args[1]) || isDouble(args[1])) && Double.parseDouble(args[1]) <= Karma.karmaHighLimit && Double.parseDouble(args[1]) >= Karma.karmaLowLimit) {
                                         Player player = Bukkit.getPlayerExact(args[2]);
                                         karma.setKarmaScore(player, Double.parseDouble(args[1]));
                                         String message = KARMA_SET_SUCCESSFULLY.getMessage().replace("<NUMBER>", args[1]).replace("<PLAYER>", player.getName());
                                         sender.sendMessage(color(message));
-                                    } else
-                                        sender.sendMessage(color(KARMA_ERROR_INVALID_NUMBER.getMessage()));
+                                    } else {
+                                        String message = KARMA_ERROR_INVALID_NUMBER.getMessage()
+                                                .replace("<LOW_LIMIT>", String.valueOf(Karma.karmaLowLimit))
+                                                .replace("<HIGH_LIMIT>", String.valueOf(Karma.karmaHighLimit));
+                                        sender.sendMessage(color(message));
+                                    }
                                 } else
                                     sender.sendMessage(color(KARMA_ERROR_UNKNOWN_PLAYER.getMessage()));
                             } else {

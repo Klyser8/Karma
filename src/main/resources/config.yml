@@ -1,17 +1,20 @@
 ### AVAILABLE LANGUAGES - English, Italian, Simplified Chinese.
-# When updating the plugin, it is important to delete the whole language folder in order for the plugin to update properly.
 Language: English
 
 Debugging: false #Shows additional messages and information related to the plugin in the console. Enabling it may cause lag.
 
-###DATA STORAGE SETTINGS###
 Autosave Timer: 120 #In seconds, it is recommended to keep this number above 60 in order to avoid possible lag spikes.
+
+###DATABASE CONFIGURATION###
+#Coming soon
 
 #--------------------KARMA ALIGNMENTS SETTINGS---------------------#
 
-Alignment Thresholds: #Karma Score alignment thresholds, AKA the current alignment based on the amount of Karma a player has. The alignments' names can be changed in the language files.
-#Always write the lower number first and the higher number second.
-#The lower threshold (First number) of the EVIL alignment and the higher threshold (second number) of the BEST alignment will be the higher Karma points obtainable.
+Alignment Thresholds: #Karma Score alignment thresholds, AKA the current alignment based on the amount of Karma a player has.
+#- The alignments' names can be changed in the language files.
+#- Always write the lower number first and the higher number second.
+#- The lower threshold (First number) of the EVIL alignment and the higher threshold (second number) of the BEST alignment will work as a limit for
+#  the amount of Karma points obtainable.
   EVIL: [-2147483647, -50000]
   VILE: [-49999, -30000] #E.G. This alignment is obtained when a player's karma is between the first number and the second number.
   MEAN: [-29999, -15000]
@@ -154,10 +157,6 @@ Effects:
     Karma Gained: [0, 0, 0, 0]   #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per positive Alignment level.
       #Whether player should have a multiplier applied to the Karma they lose.
     Karma Lost: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per positive Alignment level.
-      #Whether a player should have a multiplier applied to the money they earn. REQUIRES VAULT TO FUNCTION!!!
-    Money Gained: [0, 0, 0, 0]   #Amount to multiply gained money by. Increases by 0.5 per positive Alignment level
-      #Whether the money a player loses on death should be altered. REQUIRES VAULT TO FUNCTION!!!
-    Money Lost: [0, 0, 0, 0]   #Multiplier assigned to the amount of money lost. Decreases by 0.1 per positive Alignment level
 
 #--REPERCUSSIONS--#
 #Written values are for the following alignments, in the written order: Rude, Mean, Vile, Evil.
@@ -178,10 +177,6 @@ Effects:
       #Whether players should have the chance of being struck by a lightning during a thunderstorm, if they are outside.
     Lightning: [8, 12, 16, 20]   #Base % chance for a player to be struck by a lightning, shortly after another lightning strikes a location far from the player. Increases by 4% per negative Alignment level.
       #Whether a player should have a multiplier applied to the money they earn. REQUIRES VAULT TO FUNCTION!!!
-    Money Gained: [0, 0, 0, 0]   #0.75   #Multiplier assigned to the amount of money earned at any moment. Decreases by 0.1 per negative Alignment level
-      #Whether the money a player loses on death should be altered. REQUIRES VAULT TO FUNCTION!!!
-    Money Lost: [0, 0, 0, 0]   #1.25 #Multiplier assigned to the amount of money lost. Increases by 0.25 per negative Alignment level
-      #Whether certain mobs should be angered in the presence of the player.
     Mobs Anger:
       Bee: [50, 55, 60, 65] #Base % chance of a bee near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
       Wolf: [25, 30, 35, 40] #Base % chance of a wolf near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
@@ -191,9 +186,6 @@ Effects:
 
 #Whether Karma can be gained in creative/spectator mode or not.
 Creative Mode Karma: false
-
-#Whether
-Use Vault: false
 
 #Worlds in which Karma cannot be gained.
 Disabled Worlds:
