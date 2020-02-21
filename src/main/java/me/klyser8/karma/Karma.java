@@ -34,7 +34,7 @@ public final class Karma extends JavaPlugin {
     public double friendlyMobKillingAmount;
 
     public boolean playerKillingEnabled;
-    public double playerKillingAmount;
+    public boolean playerHittingEnabled;
 
     public boolean villagerTradingEnabled;
     public double villagerTradingAmount;
@@ -55,7 +55,13 @@ public final class Karma extends JavaPlugin {
     public double goldenCarrotConsumedAmount;
 
     public boolean placingBlocksEnabled;
+    private Map<Material, Double> placedBlocksMap;
+
     public boolean breakingBlocksEnabled;
+    private Map<Material, Double> brokenBlocksMap;
+
+    public boolean messageSentEnabled;
+    private HashMap<String, Double> karmaWordsMap;
 
     public boolean percentageDecreaseEnabled;
     public double percentageDecreaseAmount;
@@ -90,9 +96,6 @@ public final class Karma extends JavaPlugin {
     private Map<String, double[]> karmaPerkMap;
 
     private Map<KarmaAlignment, ArrayList<String>> alignmentCommands;
-    private Map<KarmaAlignment, Double> alignmentKarmaChangeMap;
-    private Map<Material, Double> placedBlocksMap;
-    private Map<Material, Double> brokenBlocksMap;
     private Map<Player, BukkitTask> aggroRunnables;
 
     private List<Player> karmaLimitList;
@@ -108,12 +111,12 @@ public final class Karma extends JavaPlugin {
 
         placedBlocksMap = new HashMap<>();
         brokenBlocksMap = new HashMap<>();
+        karmaWordsMap = new HashMap<>();
         karmaLimitList = new ArrayList<>();
         disabledWorldList = new ArrayList<>();
         karmaRepercussionMap = new HashMap<>();
         karmaPerkMap = new HashMap<>();
         alignmentCommands = new HashMap<>();
-        alignmentKarmaChangeMap = new HashMap<>();
         aggroRunnables = new HashMap<>();
 
         settings.setupLanguage();
@@ -205,7 +208,7 @@ public final class Karma extends JavaPlugin {
         friendlyMobKillingAmount = getConfig().getDouble("Friendly Mob Killing.Amount");
 
         playerKillingEnabled = getConfig().getBoolean("Player Killing.Enabled");
-        playerKillingAmount = getConfig().getDouble("Player Killing.Amount");
+        playerHittingEnabled = getConfig().getBoolean("Player Hitting.Enabled");
 
         villagerTradingEnabled = getConfig().getBoolean("Villager Trading.Enabled");
         villagerTradingAmount = getConfig().getDouble("Villager Trading.Amount");
@@ -219,7 +222,12 @@ public final class Karma extends JavaPlugin {
         entityFedEnabled = getConfig().getBoolean("Entity Fed.Enabled");
         entityFedAmount = getConfig().getDouble("Entity Fed.Amount");
 
-        serverVotedEnabled = getConfig().getBoolean("Server Voted.Enabled");
+        if (getServer().getPluginManager().getPlugin("Votifier") != null) {
+            serverVotedEnabled = getConfig().getBoolean("Server Voted.Enabled");
+        } else {
+            serverVotedEnabled = false;
+            sendDebugMessage("[Karma]", "Disabled server voting rewards due to missing Dependency (Votifier).");
+        }
         serverVotedAmount = getConfig().getDouble("Server Voted.Amount");
 
         goldenCarrotConsumedEnabled = getConfig().getBoolean("Golden Carrot Consumed.Enabled");
@@ -227,6 +235,8 @@ public final class Karma extends JavaPlugin {
 
         placingBlocksEnabled = getConfig().getBoolean("Placing Blocks.Enabled");
         breakingBlocksEnabled = getConfig().getBoolean("Breaking Blocks.Enabled");
+
+        messageSentEnabled = getConfig().getBoolean("Message Sent.Enabled");
 
         karmaTimeLimit = getConfig().getDouble("Karma Limit.Max Amount");
         karmaLimitTimer = getConfig().getInt("Karma Limit.Timer");
@@ -247,15 +257,17 @@ public final class Karma extends JavaPlugin {
                 brokenBlocksMap.put(Material.valueOf(string), getConfig().getDouble("Breaking Blocks.Blocks." + string));
         }
 
+        for (String word : getConfig().getConfigurationSection("Message Sent.Words").getValues(false).keySet()) {
+            karmaWordsMap.put(word, getConfig().getDouble("Message Sent.Words." + word));
+        }
+
         for (String effect : getConfig().getConfigurationSection("Effects.Positive").getValues(false).keySet()) {
             karmaPerkMap.put(effect, toPrimitiveArray(getConfig().getDoubleList("Effects.Positive." + effect).toArray(new Double[]{})));
         }
 
         for (String effect : getConfig().getConfigurationSection("Effects.Negative").getValues(false).keySet()) {
             if (effect.equalsIgnoreCase("mobs anger")) {
-                sendDebugMessage("effect", effect);
                 for (String subEffect : getConfig().getConfigurationSection("Effects.Negative." + effect).getValues(false).keySet()) {
-                    sendDebugMessage("subEffect", effect);
                     karmaRepercussionMap.put(effect + "." + subEffect, toPrimitiveArray(getConfig().getDoubleList("Effects.Negative." + effect + "." + subEffect).toArray(new Double[]{})));
                 }
             } else
@@ -266,10 +278,6 @@ public final class Karma extends JavaPlugin {
 
         for (KarmaAlignment alignment : KarmaAlignment.values()) {
             alignmentCommands.put(alignment, (ArrayList<String>) getConfig().getStringList("Alignment Commands." + alignment.toString()));
-        }
-
-        for (KarmaAlignment alignment : KarmaAlignment.values()) {
-            alignmentKarmaChangeMap.put(alignment, getConfig().getDouble("Player Killing.Alignment Amount." + alignment.toString()));
         }
 
         karmaHighLimit = KarmaAlignment.BEST.getHighBoundary();
@@ -291,6 +299,7 @@ public final class Karma extends JavaPlugin {
         reloadConfig();
         setupPreferences();
         settings.setupLanguage();
+        KarmaAlignment.loadAlignments(this, settings.getLang(), getConfig());
     }
 
 
@@ -354,15 +363,13 @@ public final class Karma extends JavaPlugin {
         return alignmentCommands;
     }
 
-
     /**
-     * Returns a map which stores the amount of karma that is changed when a player kills
-     * another player. Said amount of karma varies depending on the victim's alignment.
+     * Returns a map containing all words which will alter the sender's Karma.
      *
-     * @return the alignmentKarmaChangeMap.
+     * @return the karmaWordsMap.
      */
-    public Map<KarmaAlignment, Double> getAlignmentKarmaChangeMap() {
-        return alignmentKarmaChangeMap;
+    public Map<String, Double> getKarmaWordsMap() {
+        return karmaWordsMap;
     }
 
 

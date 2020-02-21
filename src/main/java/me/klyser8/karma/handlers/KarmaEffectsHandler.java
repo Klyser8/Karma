@@ -8,6 +8,7 @@ import me.klyser8.karma.events.KarmaGainEvent;
 import me.klyser8.karma.events.KarmaLossEvent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

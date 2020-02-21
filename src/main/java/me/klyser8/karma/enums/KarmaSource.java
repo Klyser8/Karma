@@ -7,7 +7,7 @@ public enum KarmaSource {
     MOB,
     //When karma is changed via a mob getting hit.
     ATTACK,
-    //When karma is changed via a player dying.
+    //When karma is changed via a player being hit/killed.
     PLAYER,
     //When karma is changed passively.
     PASSIVE,
@@ -25,6 +25,8 @@ public enum KarmaSource {
     FOOD,
     //When karma is changed via server voting.
     VOTING,
+    //When karma is changed via messages.
+    CHAT,
     //When karma is changed by other, unlisted means.
     MISC
 }

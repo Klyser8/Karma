@@ -1,5 +1,5 @@
 package me.klyser8.karma.handlers;
-
+import com.vexsoftware.votifier.model.VotifierEvent;
 import me.klyser8.karma.Karma;
 import me.klyser8.karma.enums.KarmaAlignment;
 import me.klyser8.karma.enums.KarmaSource;
@@ -8,6 +8,8 @@ import me.klyser8.karma.events.KarmaGainEvent;
 import me.klyser8.karma.events.KarmaLossEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,15 +22,17 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Merchant;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static me.klyser8.karma.util.UtilMethods.color;
-import static me.klyser8.karma.util.UtilMethods.sendDebugMessage;
+import static me.klyser8.karma.util.UtilMethods.*;
 
 
 public class KarmaHandler implements Listener {
@@ -269,8 +273,7 @@ public class KarmaHandler implements Listener {
     public void onPlayerKill(PlayerDeathEvent event) {
         if (event.getEntity().getKiller() != null) {
             if (plugin.playerKillingEnabled) {
-                KarmaAlignment victimAlignment = plugin.getStorageHandler().getPlayerData(event.getEntity().getUniqueId()).getKarmaAlignment();
-                changeKarmaScore(event.getEntity().getKiller(), plugin.getAlignmentKarmaChangeMap().get(victimAlignment), KarmaSource.PLAYER);
+                changeKarmaScore(event.getEntity().getKiller(), plugin.getPlayerAlignment(event.getEntity()).getKillPenalty(), KarmaSource.PLAYER);
             }
         }
     }
@@ -290,63 +293,23 @@ public class KarmaHandler implements Listener {
 
     @EventHandler
     public void onEntityHit(EntityDamageByEntityEvent event) {
-        boolean isVersionNew = Karma.version.contains("1.13") || Karma.version.contains("1.14") || Karma.version.contains("1.15");
-        if (plugin.villagerHittingEnabled && (event.getEntity() instanceof Villager)) {
-            if (event.getDamager() instanceof Projectile) {
-                if (((Projectile) event.getDamager()).getShooter() instanceof Player && !((Player) ((Projectile) event.getDamager()).getShooter()).hasMetadata("NPC")) {
-                    EntityType entity = event.getDamager().getType();
-                    Player player = null;
-
-                    if (isVersionNew) {
-                        if (entity == EntityType.TRIDENT)
-                            player = (Player) ((Trident) event.getDamager()).getShooter();
-                    }
-
-                    if (!Karma.version.contains("1.8")) {
-                        if (entity == EntityType.SPECTRAL_ARROW)
-                            player = (Player) ((SpectralArrow) event.getDamager()).getShooter();
-                    }
-
-                    if (entity == EntityType.ARROW)
-                        player = (Player) ((Arrow) event.getDamager()).getShooter();
-
-                    if (player != null)
-                        changeKarmaScore(player, plugin.villagerHittingAmount, KarmaSource.ATTACK);
-
+        if (plugin.villagerHittingEnabled && (event.getEntity() instanceof Merchant)) {
+            if (isAttackerPlayer(event)) {
+                Player player = null;
+                if (event.getDamager() instanceof Projectile && !((Entity) ((Projectile) event.getDamager()).getShooter()).hasMetadata("NPC")) {
+                    player = (Player) event.getDamager();
+                } else if (event.getDamager() instanceof Player) {
+                    player = (Player) event.getDamager();
                 }
-            } else if (event.getDamager() instanceof Player && !event.getDamager().hasMetadata("NPC")) {
-                changeKarmaScore((Player) event.getDamager(), plugin.villagerHittingAmount, KarmaSource.ATTACK);
+                if (player != null) {
+                    changeKarmaScore(player, plugin.villagerHittingAmount, KarmaSource.ATTACK);
+                }
             }
         }
-
-        else if (plugin.villagerHittingEnabled && (Karma.version.contains("1.14") || Karma.version.contains("1.15")) ) {
-            if (event.getEntity() instanceof WanderingTrader) {
-                if (event.getDamager() instanceof Projectile) {
-                    if (((Projectile) event.getDamager()).getShooter() instanceof Player && !((Player) ((Projectile) event.getDamager()).getShooter()).hasMetadata("NPC")) {
-                        EntityType entity = event.getDamager().getType();
-                        Player player = null;
-
-                        if (isVersionNew) {
-                            if (entity == EntityType.TRIDENT)
-                                player = (Player) ((Trident) event.getDamager()).getShooter();
-                        }
-
-                        if (!Karma.version.contains("1.8")) {
-                            if (entity == EntityType.SPECTRAL_ARROW)
-                                player = (Player) ((SpectralArrow) event.getDamager()).getShooter();
-                        }
-
-                        if (entity == EntityType.ARROW)
-                            player = (Player) ((Arrow) event.getDamager()).getShooter();
-
-                        if (player != null)
-                            changeKarmaScore(player, plugin.villagerHittingAmount, KarmaSource.ATTACK);
-
-                    }
-                } else if (event.getDamager() instanceof Player && !event.getDamager().hasMetadata("NPC")) {
-                    changeKarmaScore((Player) event.getDamager(), plugin.villagerHittingAmount, KarmaSource.ATTACK);
-                }
-            }
+        if (plugin.playerHittingEnabled && event.getEntity() instanceof Player && isAttackerPlayer(event)) {
+            Player victim = (Player) event.getEntity();
+            Player attacker = (Player) event.getDamager();
+            changeKarmaScore(attacker, plugin.getPlayerAlignment(victim).getHitPenalty(), KarmaSource.PLAYER);
         }
     }
 
@@ -361,7 +324,8 @@ public class KarmaHandler implements Listener {
     public void onEntityFed(PlayerInteractEntityEvent event) {
         if (!Karma.version.contains("1.8")) {
             if (plugin.entityFedEnabled) {
-                if (event.getRightClicked() instanceof Animals && (!(event.getPlayer().getInventory().getItemInMainHand().getType() == Material.SADDLE)) || !(event.getPlayer().getInventory().getItemInOffHand().getType() == Material.SADDLE)) {
+                if (event.getRightClicked() instanceof Animals && (!(event.getPlayer().getInventory().getItemInMainHand().getType() == Material.SADDLE)) ||
+                        !(event.getPlayer().getInventory().getItemInOffHand().getType() == Material.SADDLE)) {
                     int oldAmountMain = event.getPlayer().getInventory().getItemInMainHand().getAmount();
                     int oldAmountOff = event.getPlayer().getInventory().getItemInOffHand().getAmount();
                     new BukkitRunnable() {
@@ -424,14 +388,28 @@ public class KarmaHandler implements Listener {
     }
 
     @EventHandler
+    public void onVoteServer(VotifierEvent event) throws IOException {
+        if (plugin.serverVotedEnabled) {
+            Player player = Bukkit.getPlayer(event.getVote().getUsername());
+            if (player != null) {
+                if (player.isOnline()) {
+                    changeKarmaScore(player, plugin.serverVotedAmount, KarmaSource.VOTING);
+                    sendDebugMessage(color(player.getName() + " has voted for the server, gaining &f" + plugin.serverVotedAmount + " &dKarma"));
+                } else {
+                    File playerFile = new File(plugin.getDataFolder() + File.separator + "players", player.getUniqueId().toString() + ".plr");
+                    FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(playerFile);
+                    double karma = playerConfig.getDouble("KarmaScore");
+                    karma+=plugin.serverVotedAmount;
+                    playerConfig.set("KarmaScore", karma);
+                    playerConfig.save(playerFile);
+                    sendDebugMessage(color(player.getName() + " has voted for the server, adding &f" + plugin.serverVotedAmount + " &dKarma to their save file."));
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
-        /*if (plugin.chatAlignments) {
-            //event.setCancelled(true);
-            String alignment = plugin.getKarmaAlignments().get(plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment());
-            event.setFormat(color(alignment + "&r") + " <" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
-            //String message = color(alignment + "&r ") + "<" + event.getPlayer().getDisplayName() + "> " + event.getMessage();
-            //Bukkit.broadcastMessage(message);
-        }*/
         if (plugin.chatAlignments) {
             if (plugin.showAlignments) {
                 String alignment = plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment().getName();
@@ -440,6 +418,13 @@ public class KarmaHandler implements Listener {
                 CharSequence color = plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment().getName().subSequence(0, 2);
                 event.setFormat(event.getFormat().replace("%1$s", color(color + event.getPlayer().getName() + "&r")));
                 event.setFormat(event.getFormat().replace(event.getPlayer().getName(), color(color + event.getPlayer().getName() + "&r")));
+            }
+        }
+        if (plugin.messageSentEnabled) {
+            for (String word : plugin.getKarmaWordsMap().keySet()) {
+                if (event.getMessage().toUpperCase().contains(word.toUpperCase())) {
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> changeKarmaScore(event.getPlayer(), plugin.getKarmaWordsMap().get(word), KarmaSource.CHAT));
+                }
             }
         }
     }

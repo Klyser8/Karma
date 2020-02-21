@@ -59,7 +59,7 @@ Friendly Mob Killing:
   Enabled: true
   Amount: -10.0
 
-#Karma changed by killing players in the server. The amount of Karma gained can be changed depending on the killed player's alignment.
+#Karma changed by killing players in the server. The amount of Karma gained/lost can be changed depending on the killed player's alignment.
 Player Killing:
   Enabled: false
   Alignment Amount:
@@ -74,6 +74,22 @@ Player Killing:
     GOOD: -50.0
     PURE: -100.0
     BEST: -250.0
+
+#Karma changed by hitting players in the server. The amount of Karma gained/lost can be changed depending on the hit player's alignment.
+Player Hitting:
+  Enabled: false
+  Alignment Amount:
+    EVIL: 2.0
+    VILE: 1.5
+    MEAN: 1.0
+    RUDE: 0.5
+
+    NEUTRAL: 0.0
+
+    KIND: -2.0
+    GOOD: -3.0
+    PURE: -4.0
+    BEST: -5.0
 
 #Karma changed by trading with villagers
 Villager Trading:
@@ -120,6 +136,14 @@ Breaking Blocks:
   Blocks:
     TNT: 1.0
 
+#Karma changed by sending messages containing certain words (Not case sensitive).
+Message Sent:
+  Enabled: true
+  Words:
+    blackspigot: -1.0
+    dumb: -5.0
+    thank you: 1.0
+
 #Maximum amount of karma which can be obtained every x seconds.
 Karma Limit:
   Max Amount: 150.0
@@ -154,7 +178,7 @@ Effects:
       #Whether players should have a possibility of non-smeltable ores to re-generate upon being mined.
     Mining: [5, 10, 15, 20]   #Base % chance of the ore re-generating, 1.5 seconds after being broken. Increases by 5% per positive Alignment level.
       #Whether players should have a multiplier applied to the Karma they gain.
-    Karma Gained: [0, 0, 0, 0]   #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per positive Alignment level.
+    Karma Gained: [1.00, 1.00, 1.00, 1.00]  #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per positive Alignment level.
       #Whether player should have a multiplier applied to the Karma they lose.
     Karma Lost: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per positive Alignment level.
 
@@ -173,7 +197,7 @@ Effects:
       #Whether players should have a multiplier applied to the Karma they gain.
     Karma Gained: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per negative Alignment level.
       #Whether player should have a multiplier applied to the Karma they lose.
-    Karma Lost: [0, 0, 0, 0]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per negative Alignment level.
+    Karma Lost: [1.00, 1.00, 1.00, 1.00]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per negative Alignment level.
       #Whether players should have the chance of being struck by a lightning during a thunderstorm, if they are outside.
     Lightning: [8, 12, 16, 20]   #Base % chance for a player to be struck by a lightning, shortly after another lightning strikes a location far from the player. Increases by 4% per negative Alignment level.
       #Whether a player should have a multiplier applied to the money they earn. REQUIRES VAULT TO FUNCTION!!!

@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
@@ -153,6 +154,16 @@ public class UtilMethods {
         int n = r.nextInt((players.length));
 
         return players[n];
+    }
+
+
+    public static boolean isAttackerPlayer(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player)
+            return true;
+        if (event.getDamager() instanceof Projectile) {
+            return ((Projectile) event.getDamager()).getShooter() instanceof Player;
+        }
+        return false;
     }
 
     public static void startAggroRunner(Karma plugin, Player player) {
