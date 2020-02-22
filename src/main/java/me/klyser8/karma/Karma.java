@@ -1,6 +1,7 @@
 package me.klyser8.karma;
 
 import me.klyser8.karma.enums.KarmaAlignment;
+import me.klyser8.karma.events.KarmaVoteListener;
 import me.klyser8.karma.handlers.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -125,6 +126,8 @@ public final class Karma extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new StorageHandler(this), this);
         getServer().getPluginManager().registerEvents(new KarmaHandler(this), this);
         getServer().getPluginManager().registerEvents(new KarmaEffectsHandler(this), this);
+        if (getServer().getPluginManager().getPlugin("Votifier") != null && getServer().getPluginManager().getPlugin("Votifier").isEnabled())
+            getServer().getPluginManager().registerEvents(new KarmaVoteListener(this), this);
         this.getCommand("karma").setExecutor(new KarmaCommands(this, karmaHandler));
 
         //this.getCommand("karma").setExecutor(new KarmaCommands(this, new KarmaHandler(this)));

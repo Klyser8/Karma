@@ -44,6 +44,7 @@ public class SettingsHandler {
             plugin.saveResource("lang" + File.separator + "english.yml", false);
             plugin.saveResource("lang" + File.separator + "italian.yml", false);
             plugin.saveResource("lang" + File.separator + "simplified_chinese.yml", false);
+            plugin.saveResource("lang" + File.separator + "vietnamese.yml", false);
         } else {
             if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "english.yml").exists()) {
                 plugin.saveResource("lang" + File.separator + "english.yml", false);
@@ -54,18 +55,22 @@ public class SettingsHandler {
             if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "simplified_chinese.yml").exists()) {
                 plugin.saveResource("lang" + File.separator + "simplified_chinese.yml", false);
             }
+            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "vietnamese.yml").exists()) {
+                plugin.saveResource("lang" + File.separator + "vietnamese.yml", false);
+            }
         }
     }
 
     public void setupLanguage() {
         String languageFile;
         plugin.setLanguage(plugin.getConfig().getString("Language").toLowerCase());
-        if (plugin.getConfig() != null && plugin.getLanguage().equalsIgnoreCase("italian")) {
+        if (plugin.getLanguage().equalsIgnoreCase("italian")) {
             languageFile = "italian.yml";
-        } else if (plugin.getConfig() != null && plugin.getLanguage().equalsIgnoreCase("simplified chinese")) {
+        } else if (plugin.getLanguage().equalsIgnoreCase("simplified chinese")) {
             languageFile = "simplified_chinese.yml";
-        }
-        else {
+        } else if (plugin.getLanguage().equalsIgnoreCase("vietnamese")) {
+            languageFile = "vietnamese.yml";
+        } else {
             languageFile = "english.yml";
         }
         langFile = new File(plugin.getDataFolder() + File.separator + "lang", languageFile);
@@ -73,7 +78,6 @@ public class SettingsHandler {
         Command.loadCommands(lang);
         Message.loadMessages(lang);
         Keyword.loadKeywords(lang);
-        KarmaAlignment.loadAlignments(lang, plugin.getConfig());
         //Bukkit.getLogger().info("Lang File: " + langFile + ", Lang config: " + lang);
         sendDebugMessage("Language test", color(Message.KARMA_RELOAD.getMessage()));
     }

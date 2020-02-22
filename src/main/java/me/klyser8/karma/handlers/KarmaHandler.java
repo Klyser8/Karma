@@ -1,5 +1,4 @@
 package me.klyser8.karma.handlers;
-import com.vexsoftware.votifier.model.VotifierEvent;
 import me.klyser8.karma.Karma;
 import me.klyser8.karma.enums.KarmaAlignment;
 import me.klyser8.karma.enums.KarmaSource;
@@ -8,8 +7,6 @@ import me.klyser8.karma.events.KarmaGainEvent;
 import me.klyser8.karma.events.KarmaLossEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,8 +22,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +33,7 @@ import static me.klyser8.karma.util.UtilMethods.*;
 public class KarmaHandler implements Listener {
 
     private static Map<Player, PassiveKarmaRunnable> karmaRunnableMap;
-    private Karma plugin;
+    protected Karma plugin;
     public KarmaHandler(Karma plugin) {
         this.plugin = plugin;
         karmaRunnableMap = new HashMap<>();
@@ -154,7 +149,7 @@ public class KarmaHandler implements Listener {
      * @param amount amount to change
      * @param source source of the karma.
      */
-    private void changeKarmaScore(Player player, double amount, KarmaSource source) {
+    public void changeKarmaScore(Player player, double amount, KarmaSource source) {
         PlayerData data = plugin.getStorageHandler().getPlayerData(player.getUniqueId());
         if (amount < 0) {
             subtractKarmaScore(player, Math.abs(amount), source);
@@ -383,27 +378,6 @@ public class KarmaHandler implements Listener {
         if (plugin.breakingBlocksEnabled) {
             if (plugin.getBrokenBlocksMap().containsKey(event.getBlock().getType())) {
                 changeKarmaScore(event.getPlayer(), plugin.getBrokenBlocksMap().get(event.getBlock().getType()), KarmaSource.BLOCK);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onVoteServer(VotifierEvent event) throws IOException {
-        if (plugin.serverVotedEnabled) {
-            Player player = Bukkit.getPlayer(event.getVote().getUsername());
-            if (player != null) {
-                if (player.isOnline()) {
-                    changeKarmaScore(player, plugin.serverVotedAmount, KarmaSource.VOTING);
-                    sendDebugMessage(color(player.getName() + " has voted for the server, gaining &f" + plugin.serverVotedAmount + " &dKarma"));
-                } else {
-                    File playerFile = new File(plugin.getDataFolder() + File.separator + "players", player.getUniqueId().toString() + ".plr");
-                    FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(playerFile);
-                    double karma = playerConfig.getDouble("KarmaScore");
-                    karma+=plugin.serverVotedAmount;
-                    playerConfig.set("KarmaScore", karma);
-                    playerConfig.save(playerFile);
-                    sendDebugMessage(color(player.getName() + " has voted for the server, adding &f" + plugin.serverVotedAmount + " &dKarma to their save file."));
-                }
             }
         }
     }
