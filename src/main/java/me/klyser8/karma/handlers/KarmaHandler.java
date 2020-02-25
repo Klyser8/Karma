@@ -50,11 +50,13 @@ public class KarmaHandler implements Listener {
         if (amount > data.getKarmaScore()) {
             KarmaGainEvent event = new KarmaGainEvent(player, amount - data.getKarmaScore(), data.getKarmaScore(), KarmaSource.COMMAND);
             Bukkit.getPluginManager().callEvent(event);
-            plugin.getStorageHandler().getPlayerData(player.getUniqueId()).setKarmaScore(amount, event.getSource());
+            if (!event.isCancelled())
+                plugin.getStorageHandler().getPlayerData(player.getUniqueId()).setKarmaScore(amount, event.getSource());
         } else {
             KarmaLossEvent event = new KarmaLossEvent(player, data.getKarmaScore() - amount, data.getKarmaScore(), KarmaSource.COMMAND);
             Bukkit.getPluginManager().callEvent(event);
-            plugin.getStorageHandler().getPlayerData(player.getUniqueId()).setKarmaScore(amount, event.getSource());
+            if (!event.isCancelled())
+                plugin.getStorageHandler().getPlayerData(player.getUniqueId()).setKarmaScore(amount, event.getSource());
         }
         updateAlignments(player);
     }
@@ -289,7 +291,7 @@ public class KarmaHandler implements Listener {
     @EventHandler
     public void onEntityHit(EntityDamageByEntityEvent event) {
         if (plugin.villagerHittingEnabled && (event.getEntity() instanceof Merchant)) {
-            if (isAttackerPlayer(event)) {
+            if (getAttackerFromEntityDamageEvent(event) != null) {
                 Player player = null;
                 if (event.getDamager() instanceof Projectile && !((Entity) ((Projectile) event.getDamager()).getShooter()).hasMetadata("NPC")) {
                     player = (Player) event.getDamager();
@@ -301,10 +303,12 @@ public class KarmaHandler implements Listener {
                 }
             }
         }
-        if (plugin.playerHittingEnabled && event.getEntity() instanceof Player && isAttackerPlayer(event)) {
+        if (plugin.playerHittingEnabled && event.getEntity() instanceof Player && getAttackerFromEntityDamageEvent(event) != null) {
             Player victim = (Player) event.getEntity();
-            Player attacker = (Player) event.getDamager();
-            changeKarmaScore(attacker, plugin.getPlayerAlignment(victim).getHitPenalty(), KarmaSource.PLAYER);
+            Player attacker = getAttackerFromEntityDamageEvent(event);
+            if (attacker != null) {
+                changeKarmaScore(attacker, plugin.getPlayerAlignment(victim).getHitPenalty(), KarmaSource.PLAYER);
+            }
         }
     }
 

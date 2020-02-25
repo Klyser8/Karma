@@ -45,6 +45,8 @@ public class SettingsHandler {
             plugin.saveResource("lang" + File.separator + "italian.yml", false);
             plugin.saveResource("lang" + File.separator + "simplified_chinese.yml", false);
             plugin.saveResource("lang" + File.separator + "vietnamese.yml", false);
+            plugin.saveResource("lang" + File.separator + "spanish.yml", false);
+            plugin.saveResource("lang" + File.separator + "russian.yml", false);
         } else {
             if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "english.yml").exists()) {
                 plugin.saveResource("lang" + File.separator + "english.yml", false);
@@ -58,6 +60,13 @@ public class SettingsHandler {
             if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "vietnamese.yml").exists()) {
                 plugin.saveResource("lang" + File.separator + "vietnamese.yml", false);
             }
+            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "spanish.yml").exists()) {
+                plugin.saveResource("lang" + File.separator + "spanish.yml", false);
+            }
+            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "russian.yml").exists()) {
+                plugin.saveResource("lang" + File.separator + "russian.yml", false);
+            }
+
         }
     }
 
@@ -70,6 +79,10 @@ public class SettingsHandler {
             languageFile = "simplified_chinese.yml";
         } else if (plugin.getLanguage().equalsIgnoreCase("vietnamese")) {
             languageFile = "vietnamese.yml";
+        } else if (plugin.getLanguage().equalsIgnoreCase("spanish")) {
+            languageFile = "spanish.yml";
+        } else if (plugin.getLanguage().equalsIgnoreCase("russian")) {
+            languageFile = "russian.yml";
         } else {
             languageFile = "english.yml";
         }

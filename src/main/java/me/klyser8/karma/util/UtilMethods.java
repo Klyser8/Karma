@@ -157,13 +157,14 @@ public class UtilMethods {
     }
 
 
-    public static boolean isAttackerPlayer(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player)
-            return true;
-        if (event.getDamager() instanceof Projectile) {
-            return ((Projectile) event.getDamager()).getShooter() instanceof Player;
+    public static Player getAttackerFromEntityDamageEvent(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player) {
+            return (Player) event.getDamager();
         }
-        return false;
+        if (event.getDamager() instanceof Projectile && ((Projectile) event.getDamager()).getShooter() instanceof Player) {
+            return (Player) ((Projectile) event.getDamager()).getShooter();
+        }
+        return null;
     }
 
     public static void startAggroRunner(Karma plugin, Player player) {
