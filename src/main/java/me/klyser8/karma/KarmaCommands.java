@@ -14,6 +14,12 @@ import static me.klyser8.karma.enums.Command.*;
 import static me.klyser8.karma.enums.Message.*;
 import static me.klyser8.karma.util.UtilMethods.*;
 
+/*
+The existence of this class is pointless. It is likely to be removed
+in one of the future versions, since as of right now it is here just 
+for reference.
+*/
+
 public class KarmaCommands implements CommandExecutor, TabCompleter {
 
     private Karma plugin;
