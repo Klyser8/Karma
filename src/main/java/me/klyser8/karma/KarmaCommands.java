@@ -1,9 +1,9 @@
-/*package me.klyser8.karma;
+package me.klyser8.karma;
 
 import me.klyser8.karma.enums.KarmaSource;
 import me.klyser8.karma.enums.Keyword;
 import me.klyser8.karma.handlers.KarmaHandler;
-import me.klyser8.karma.storage.PlayerData;
+import me.klyser8.karma.handlers.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -14,10 +14,6 @@ import static me.klyser8.karma.enums.Command.*;
 import static me.klyser8.karma.enums.Message.*;
 import static me.klyser8.karma.util.UtilMethods.*;
 
-The existence of this class is pointless. It is likely to be removed
-in one of the future versions, since as of right now it is here just
-for reference.
-
 public class KarmaCommands implements CommandExecutor, TabCompleter {
 
     private Karma plugin;
@@ -26,7 +22,6 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
         this.karma = karma;
     }
-
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
@@ -582,4 +577,3 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
         return null;
     }
 }
-*/
