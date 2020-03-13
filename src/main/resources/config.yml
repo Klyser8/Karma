@@ -3,7 +3,7 @@ Language: English
 
 Debugging: false #Shows additional messages and information related to the plugin in the console. Enabling it may cause lag.
 
-Autosave Timer: 120 #In seconds, it is recommended to keep this number above 60 in order to avoid possible lag spikes.
+Autosave Interval: 120 #In seconds, it is recommended to keep this number above 60 in order to avoid possible lag spikes.
 
 ###DATABASE CONFIGURATION###
 #Coming soon
@@ -42,7 +42,7 @@ Display Name Alignment: false #Currently not implemented.
 Passive Karma Gain:
   Enabled: true
   Amount: 1.0
-  Timer: 300 #In seconds
+  Interval: 300 #In seconds
 
 #Karma changed by killing passive entities in the server.
 Passive Mob Killing:
@@ -147,17 +147,17 @@ Message Sent:
 #Maximum amount of karma which can be obtained every x seconds.
 Karma Limit:
   Max Amount: 150.0
-  Timer: 3600
+  Interval: 3600
 
-#Percentage to decrease the amount of Karma GAINED if it is of the same source as the previous time Karma was gained.
-Percentage Decrease:
+#Multiplier to apply to the amount of Karma GAINED if it is of the same source as the previous time Karma was gained.
+Decrease Multiplier:
   Enabled: true
-  Amount: 50 #<-- 50%
+  Amount: 0.5 #<-- (Instead of gaining 10.0 points, a player will gain 5.0)
 
-#Percentage to increase the amount of karma LOST if it is of the same source as the previous time Karma was lost.
-Percentage Increase:
+#Multiplier to apply to the amount of karma LOST if it is of the same source as the previous time Karma was lost.
+Increase Multiplier:
   Enabled: true
-  Amount: 250 #<-- 250%
+  Amount: 2.5 #<-- (Instead of gaining 10 points, a player will gain 25.0)
 
 #--------------------KARMA PERKS - REPERCUSSIONS---------------------#
 
@@ -170,41 +170,41 @@ Percentage Increase:
 Effects:
   Positive:   #Perks that being of a good alignment are given to players.
       #Whether players should have the possibility of gaining extra enchantments upon enchanting.
-    Enchanting: [20, 30, 40, 50]   #Base % chance of the extra enchantment being added. Increases by 10% per positive Alignment level.
+    Enchanting: [20, 30, 40, 50]   #Base % chance of the extra enchantment being added.
       #Whether players should gain extra experience upon picking some up.
-    Experience: [1.25, 1.50, 1.75, 2.0]  #Multiplier assigned to the amount of experience gained. Increases by 0.25 per positive Alignment level.
+    Experience: [1.25, 1.50, 1.75, 2.0]  #Multiplier assigned to the amount of experience gained.
       #Whether mobs killed by well-aligned players should have a possibility to drop extra loot.
-    Drops: [20, 40, 60, 80]   #Base % chance of extra loot being generated. Increases by 20% per positive Alignment level.
+    Drops: [20, 40, 60, 80]   #Base % chance of extra loot being generated.
       #Whether players should have a possibility of non-smeltable ores to re-generate upon being mined.
-    Mining: [5, 10, 15, 20]   #Base % chance of the ore re-generating, 1.5 seconds after being broken. Increases by 5% per positive Alignment level.
+    Mining: [5, 10, 15, 20]   #Base % chance of the ore re-generating, 1.5 seconds after being broken.
       #Whether players should have a multiplier applied to the Karma they gain.
-    Karma Gained: [1.00, 1.00, 1.00, 1.00]  #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per positive Alignment level.
+    Karma Gained: [1.00, 1.00, 1.00, 1.00]  #Multiplier assigned to the amount of Karma gained.
       #Whether player should have a multiplier applied to the Karma they lose.
-    Karma Lost: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per positive Alignment level.
+    Karma Lost: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma lost.
 
 #--REPERCUSSIONS--#
 #Written values are for the following alignments, in the written order: Rude, Mean, Vile, Evil.
 
   Negative:   #Repercussions that being of a bad alignment has on the players.
       #Whether players should have the possibility of losing one enchantment upon enchanting. Additionally, enchanted items can gain curses.
-    Enchanting: [50, 60, 70, 80]   #Base % chance of an enchantment being removed. Increases by 10% per Negative Alignment level. Half of the value written here will be the chance of cursing the enchanted item.
+    Enchanting: [50, 60, 70, 80]   #Base % chance of an enchantment being removed. Half of the value will be the chance of cursing the enchanted item.
       #Whether players should gain less experience upon picking some up.
-    Experience: [0.75, 0.65, 0.55, 0.45]  #Multiplier assigned to the amount of experience gained. Decreases by 0.1 per negative Alignment level.
+    Experience: [0.75, 0.65, 0.55, 0.45]  #Multiplier assigned to the amount of experience gained.
       #Whether mobs killed by players should have the possibility to drop no loot/no experience.
-    Drops: [20, 30, 40, 50]   #Base % chance of no loot being generated. Increases by 10% per negative Alignment level.
+    Drops: [20, 30, 40, 50]   #Base % chance of no loot being generated.
       #Whether players should have the possibility of any ore to drop cobblestone instead of its respective mineral upon being mined.
-    Mining: [20, 30, 40, 50]   #Base % chance of the ore dropping cobblestone. Increases by 10% per negative Alignment level.
+    Mining: [20, 30, 40, 50]   #Base % chance of the ore dropping cobblestone.
       #Whether players should have a multiplier applied to the Karma they gain.
-    Karma Gained: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma gained. Increases by 0.25 per negative Alignment level.
+    Karma Gained: [2.00, 2.25, 2.50, 2.75]   #Multiplier assigned to the amount of Karma gained.
       #Whether player should have a multiplier applied to the Karma they lose.
-    Karma Lost: [1.00, 1.00, 1.00, 1.00]   #Multiplier assigned to the amount of Karma lost. Increases by 0.25 per negative Alignment level.
+    Karma Lost: [1.00, 1.00, 1.00, 1.00]   #Multiplier assigned to the amount of Karma lost.
       #Whether players should have the chance of being struck by a lightning during a thunderstorm, if they are outside.
-    Lightning: [8, 12, 16, 20]   #Base % chance for a player to be struck by a lightning, shortly after another lightning strikes a location far from the player. Increases by 4% per negative Alignment level.
+    Lightning: [8, 12, 16, 20]   #Base % chance for a player to be struck by a lightning, shortly after another lightning strikes a location far from the player.
       #Whether a player should have a multiplier applied to the money they earn. REQUIRES VAULT TO FUNCTION!!!
     Mobs Anger:
-      Bee: [50, 55, 60, 65] #Base % chance of a bee near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
-      Wolf: [25, 30, 35, 40] #Base % chance of a wolf near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
-      Pigman: [5, 10, 15, 20] #Base % chance of a wolf near a player to become aggressive every 15 seconds. Increases by 5% per negative Alignment Level.
+      Bee: [2.75, 3.00, 3.25, 3.50] #Base % chance of a bee near a player to become aggressive every second.
+      Wolf: [1.25, 1.50, 1.75, 2.00] #Base % chance of a wolf near a player to become aggressive every second.
+      Pigman: [0.25, 0.50, 0.75, 1.00] #Base % chance of a pig-man zombie near a player to become aggressive every second.
 
 #--------------------MISCELLANEOUS-------------------#
 

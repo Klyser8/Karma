@@ -6,7 +6,7 @@ authors: [Klyser8]
 softdepend: [PlaceholderAPI, Vault, Votifier]
 description: See how good or bad a player behaves in your server, with this score-alignment based system.
 
-commands:
-  karma:
-    description: Default karma command
-    usage: /karma [add|remove|set|clear]
+#commands:
+  #karma:
+    #description: Default karma command
+    #usage: /karma [add|remove|set|clear]

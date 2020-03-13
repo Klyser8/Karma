@@ -2,7 +2,7 @@ package me.klyser8.karma.util;
 
 import me.klyser8.karma.Karma;
 import me.klyser8.karma.enums.KarmaAlignment;
-import me.klyser8.karma.handlers.PlayerData;
+import me.klyser8.karma.storage.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -27,7 +27,7 @@ public class UtilMethods {
     }
 
 
-    /**Turns minecraft color codes, such as &5, into ChatColor enums.
+    /**Turns Minecraft color codes, such as &5, into ChatColor enums.
      *
      * @param msg any string.
      */
@@ -50,20 +50,20 @@ public class UtilMethods {
      * @param name name of the value you want to check
      * @param value value to check
      */
-    public static void sendDebugMessage(String name, String value) {
+    public static void debugMessage(String name, Object value) {
         if (Karma.debugging)
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + name + ": " + ChatColor.DARK_PURPLE + value);
+            Bukkit.getConsoleSender().sendMessage(color("&d[Karma]&f " + name + ":&d " + value));
     }
 
 
     /**If the parameter 'Debugging' is set to true, this method sends a
      * message to the console.
      *
-     * @param string value to check
+     * @param value value to check
      */
-    public static void sendDebugMessage(String string) {
+    public static void debugMessage(Object value) {
         if (Karma.debugging)
-            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_PURPLE + string);
+            Bukkit.getConsoleSender().sendMessage(color("&d[Karma]&f " + value));
     }
 
 
@@ -72,7 +72,13 @@ public class UtilMethods {
      * @param string any string
      */
     public static boolean isInteger(String string) {
-        return ((string != null && string.matches("[0-9]+")));
+        try {
+            Integer.parseInt(string);
+            return true;
+        }
+        catch(NumberFormatException e) {
+            return false;
+        }
     }
 
 
@@ -82,27 +88,25 @@ public class UtilMethods {
      * @param string any string
      */
     public static boolean isDouble(String string) {
-        return ((string != null && string.matches("[0-9.]+")));
+        try {
+            Double.parseDouble(string);
+            return true;
+        }
+        catch(NumberFormatException e) {
+            return false;
+        }
+
     }
 
 
-    /**Returns true if the parsed string contains only NEGATIVE doubles.
-     *
-     * @param string any string
+    /**
+     * @param x number to check for
+     * @param min lowest number
+     * @param max highest number
+     * @return whether X is between min and max
      */
-    public static boolean isNegativeDouble(String string) {
-        return ((string != null && string.matches("[0-9.-]+")));
-    }
-
-
-    /**@param maximum the highest number to check for
-     * @param minimum the lowest number to check for
-     * @param value number to check
-     *
-     * @return true if value is between maximum and minimum.
-     */
-    public static boolean isBetween(int maximum, int minimum, int value) {
-        return minimum > maximum ? value > maximum && value < minimum : value > minimum && value < maximum;
+    public static boolean isBetween(double x, double min, double max) {
+        return x > min && x < max;
     }
 
 
@@ -167,72 +171,15 @@ public class UtilMethods {
         return null;
     }
 
-    public static void startAggroRunner(Karma plugin, Player player) {
-        Random random = new Random();
-        PlayerData data = plugin.getStorageHandler().getPlayerData(player.getUniqueId());
-        boolean doBeesExist = Karma.version.contains("1.15");
-        if (!plugin.getAggroRunnables().containsKey(player)) {
-            plugin.getAggroRunnables().put(player, new BukkitRunnable() {
-                double beeChance;
-                double wolfChance;
-                double pigmanChance;
-
-                @Override
-                public void run() {
-                    if (data.getKarmaScore() < KarmaAlignment.RUDE.getHighBoundary()) {
-                        KarmaAlignment alignment = data.getKarmaAlignment();
-                        if (player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
-                            switch (alignment) {
-                                case RUDE:
-                                    beeChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Bee")[0];
-                                    wolfChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Wolf")[0];
-                                    pigmanChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Pigman")[0];
-                                    break;
-                                case MEAN:
-                                    beeChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Bee")[1];
-                                    wolfChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Wolf")[1];
-                                    pigmanChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Pigman")[1];
-                                    break;
-                                case VILE:
-                                    beeChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Bee")[2];
-                                    wolfChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Wolf")[2];
-                                    pigmanChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Pigman")[2];
-                                    break;
-                                case EVIL:
-                                    beeChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Bee")[3];
-                                    wolfChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Wolf")[3];
-                                    pigmanChance = plugin.getKarmaRepercussionMap().get("Mobs Anger.Pigman")[3];
-                                    break;
-                                default:
-                                    beeChance = 0;
-                                    wolfChance = 0;
-                                    pigmanChance = 0;
-                            }
-                            sendDebugMessage("Bee Chance", beeChance + "");
-                            sendDebugMessage("Wolf Chance", wolfChance + "");
-                            sendDebugMessage("Pigman Chance", pigmanChance + "");
-                            for (Entity entity : player.getNearbyEntities(10, 5, 10)) {
-                                if (entity instanceof Wolf && random.nextInt(100) < wolfChance) {
-                                    if (!((Wolf) entity).isTamed()) {
-                                        ((Wolf) entity).setAngry(true);
-                                        ((Wolf) entity).setTarget(player);
-                                    }
-                                }
-                                if (entity instanceof PigZombie && random.nextInt(100) < pigmanChance) {
-                                    ((PigZombie) entity).setAngry(true);
-                                    if (Karma.version.contains("1.13") || Karma.version.contains("1.14") || Karma.version.contains("1.15"))
-                                        entity.getWorld().playSound(((PigZombie) entity).getEyeLocation(), Sound.ENTITY_ZOMBIE_PIGMAN_ANGRY, 1.0F, 2.0f);
-                                    else
-                                        entity.getWorld().playSound(((PigZombie) entity).getEyeLocation(), Sound.valueOf("ZOMBIE_PIG_ANGRY"), 1.0F, 2.0f);
-                                }
-                                if (doBeesExist && entity instanceof Bee && random.nextInt(100) < beeChance) {
-                                    ((Bee) entity).setAnger(600);
-                                }
-                            }
-                        }
-                    }
-                }
-            }.runTaskTimer(plugin, 0, 300));
+    public static boolean checkVersion(final String... versions) {
+        if (versions == null) {
+            return false;
         }
+
+        for (int i = 0; i < versions.length; i++) {
+            if (Karma.VERSION.contains(versions[i])) return true;
+        }
+
+        return false;
     }
 }

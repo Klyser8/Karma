@@ -1,17 +1,22 @@
 package me.klyser8.karma;
 
+import me.klyser8.karma.commands.*;
 import me.klyser8.karma.enums.KarmaAlignment;
 import me.klyser8.karma.events.KarmaVoteListener;
 import me.klyser8.karma.handlers.*;
+import me.klyser8.karma.listeners.KarmaEffectsListener;
+import me.klyser8.karma.listeners.KarmaListener;
+import me.klyser8.karma.listeners.StorageListener;
+import me.mattstudios.mf.base.CommandManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
+import java.io.File;
 import java.util.*;
 
 import static me.klyser8.karma.util.UtilMethods.*;
@@ -23,7 +28,7 @@ public final class Karma extends JavaPlugin {
 
     public boolean passiveKarmaGainEnabled;
     public double passiveKarmaGainAmount;
-    public int passiveKarmaGainTimer;
+    public int passiveKarmaGainInterval;
 
     public boolean passiveMobKillingEnabled;
     public double passiveMobKillingAmount;
@@ -56,22 +61,22 @@ public final class Karma extends JavaPlugin {
     public double goldenCarrotConsumedAmount;
 
     public boolean placingBlocksEnabled;
-    private Map<Material, Double> placedBlocksMap;
+    private Map<Material, Double> placedBlocksMap = new HashMap<>();
 
     public boolean breakingBlocksEnabled;
-    private Map<Material, Double> brokenBlocksMap;
+    private Map<Material, Double> brokenBlocksMap = new HashMap<>();
 
     public boolean messageSentEnabled;
-    private HashMap<String, Double> karmaWordsMap;
+    private Map<String, Double> karmaWordsMap = new HashMap<>();
 
-    public boolean percentageDecreaseEnabled;
-    public double percentageDecreaseAmount;
+    public boolean decreaseMultiplierEnabled;
+    public double decreaseMultiplierAmount;
 
-    public boolean percentageIncreaseEnabled;
-    public double percentageIncreaseAmount;
+    public boolean increaseMultiplierEnabled;
+    public double increaseMultiplierAmount;
 
     public double karmaTimeLimit;
-    public int karmaLimitTimer;
+    public int karmaLimitInterval;
 
     public boolean notificationSounds;
     public boolean creativeKarma;
@@ -80,93 +85,85 @@ public final class Karma extends JavaPlugin {
     public boolean displayNameAlignments;
     public boolean showAlignments;
 
-    public final static String version = Bukkit.getVersion();
+    public final static String VERSION = Bukkit.getVersion();
     public static boolean debugging = false;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private static Economy econ = null;
 
-    private int autosaveTimer;
+    private int autosaveInterval;
 
     private String language = "english.yml";
-    public String messageFormat;
 
     private SettingsHandler settings;
     private StorageHandler storageHandler;
+    private KarmaEnumFetcher karmaEnumFetcher;
 
-    private Map<String, double[]> karmaRepercussionMap;
-    private Map<String, double[]> karmaPerkMap;
+    private Map<String, double[]> karmaRepercussionMap = new HashMap<>();
+    private Map<String, double[]> karmaPerkMap = new HashMap<>();
 
-    private Map<KarmaAlignment, ArrayList<String>> alignmentCommands;
-    private Map<Player, BukkitTask> aggroRunnables;
+    private Map<KarmaAlignment, List<String>> alignmentCommands = new HashMap<>();
 
-    private List<Player> karmaLimitList;
+    private List<Player> karmaLimitList = new ArrayList<>();
     public List<String> disabledWorldList;
 
     @Override
     public void onEnable() {
-        settings = new SettingsHandler(this);
-        storageHandler = new StorageHandler(this);
+        CommandManager commandManager = new CommandManager(this);
+        karmaEnumFetcher = new KarmaEnumFetcher(this);
         KarmaHandler karmaHandler = new KarmaHandler(this);
+        commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> sender.sendMessage(color("&cUnknown command. Type &6/Karma help&c for help.")));
+        commandManager.register(new ViewKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new ReloadKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new SaveKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new HelpKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new AddKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new RemoveKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new SetKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new ClearKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new ListKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        settings = new SettingsHandler(this);
+        storageHandler = new StorageHandler(this, karmaHandler);
         saveDefaultConfig();
         settings.setup();
-
-        placedBlocksMap = new HashMap<>();
-        brokenBlocksMap = new HashMap<>();
-        karmaWordsMap = new HashMap<>();
-        karmaLimitList = new ArrayList<>();
-        disabledWorldList = new ArrayList<>();
-        karmaRepercussionMap = new HashMap<>();
-        karmaPerkMap = new HashMap<>();
-        alignmentCommands = new HashMap<>();
-        aggroRunnables = new HashMap<>();
 
         settings.setupLanguage();
         setupPreferences();
 
-        getServer().getPluginManager().registerEvents(new StorageHandler(this), this);
-        getServer().getPluginManager().registerEvents(new KarmaHandler(this), this);
-        getServer().getPluginManager().registerEvents(new KarmaEffectsHandler(this), this);
+        getServer().getPluginManager().registerEvents(new StorageListener(this, karmaHandler), this);
+        getServer().getPluginManager().registerEvents(new KarmaListener(this), this);
+        getServer().getPluginManager().registerEvents(new KarmaEffectsListener(this), this);
         if (getServer().getPluginManager().getPlugin("Votifier") != null && getServer().getPluginManager().getPlugin("Votifier").isEnabled())
             getServer().getPluginManager().registerEvents(new KarmaVoteListener(this), this);
-        this.getCommand("karma").setExecutor(new KarmaCommands(this, karmaHandler));
+        //this.getCommand("karma").setExecutor(new KarmaCommands(this, karmaHandler));
 
-        //this.getCommand("karma").setExecutor(new KarmaCommands(this, new KarmaHandler(this)));
         if (Bukkit.getOnlinePlayers().size() > 0) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                storageHandler.setupPlayerData(player.getUniqueId());
-                if (tablistAlignments) {
-                    karmaHandler.updateAlignments(player);
-                }
-                if (passiveKarmaGainEnabled) {
-                    new KarmaHandler(this).new PassiveKarmaRunnable(player).runTaskTimer(this, passiveKarmaGainTimer * 20, passiveKarmaGainTimer * 20);
-                }
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        getKarmaLimitList().remove(player);
-                        getStorageHandler().getPlayerData(player.getUniqueId()).clearRecentKarmaGained();
-                        sendDebugMessage("Recent Karma has been reset for", player.getName());
-                    }
-                }.runTaskTimer(this, karmaLimitTimer * 20, karmaLimitTimer * 20);
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        startAggroRunner(Karma.this, player);
-                    }
-                }.runTaskLater(this, 20);
-            }
-
-        }
-        new BukkitRunnable() {
-            @Override
-            public void run() {
+            setupOnlinePlayers();
+            Bukkit.getScheduler().runTaskTimer(this, () -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     getStorageHandler().savePlayerData(player.getUniqueId());
                 }
-            }
-        }.runTaskTimer(this, autosaveTimer * 20, autosaveTimer * 20);
-        if (getPluginManager().getPlugin("PlaceholderAPI") != null)
-            Bukkit.getConsoleSender().sendMessage(color("[Karma] &dSince you are using PlaceholderAPI, you are being informed that Karma has got a PAPI expansion you can download! You do that by either downloading it from the eCloud (If it's available there), or by downloading it here: &rhttps://api.extendedclip.com/expansions/karma-papi-expansion/"));
+            }, autosaveInterval * 20, autosaveInterval * 20);
+        }
+
+        Plugin plugin = getPluginManager().getPlugin("PlaceholderAPI");
+        if (plugin == null) return;
+        for (File child : plugin.getDataFolder().listFiles()) {
+            if (!child.getName().toLowerCase().contains("karma")) continue;
+            Bukkit.getConsoleSender().sendMessage(color("[Karma] &dSince you are using PlaceholderAPI, you are being informed that Karma has got a PAPI expansion you can download!" +
+                    " You do that by either downloading it from the eCloud (If it's available there), or by downloading it here: " +
+                    "&rhttps://api.extendedclip.com/expansions/karma-papi-expansion/"));
+            break;
+        }
+    }
+
+    /**
+     * Sets up players who are currently online
+     *
+     */
+    private void setupOnlinePlayers() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            getStorageHandler().setupPlayer(player);
+        }
     }
 
     @Override
@@ -188,86 +185,133 @@ public final class Karma extends JavaPlugin {
     public void setupPreferences() {
         debugging = getConfig().getBoolean("Debugging");
         notificationSounds = getConfig().getBoolean("Notification Sounds");
+        debugMessage("Notification sounds enabled", false);
         creativeKarma = getConfig().getBoolean("Creative Mode Karma");
-        autosaveTimer = getConfig().getInt("Autosave Timer");
+        debugMessage("Creative mode Karma enabled", creativeKarma);
+        autosaveInterval = getConfig().getInt("Autosave Interval");
+        debugMessage("Auto-save interval", autosaveInterval);
+        //noinspection ConstantConditions
         language = getConfig().getString("Language").toLowerCase();
+        debugMessage("Current Language", language);
         chatAlignments = getConfig().getBoolean("Chat Alignment");
+        debugMessage("Chat alignments enabled", chatAlignments);
         tablistAlignments = getConfig().getBoolean("Tablist Alignment");
+        debugMessage("Tab list alignments enabled", tablistAlignments);
         displayNameAlignments = getConfig().getBoolean("Display Name Alignment");
+        debugMessage("Display name alignments enabled", false);
         showAlignments = getConfig().getBoolean("Show Alignments");
-        messageFormat = getConfig().getString("Message Format");
+        debugMessage("Visible alignments enabled", showAlignments);
 
         passiveKarmaGainEnabled = getConfig().getBoolean("Passive Karma Gain.Enabled");
+        debugMessage("Passive Karma gain enabled", passiveKarmaGainEnabled);
         passiveKarmaGainAmount = getConfig().getDouble("Passive Karma Gain.Amount");
-        passiveKarmaGainTimer = getConfig().getInt("Passive Karma Gain.Timer");
+        debugMessage("Passive Karma gain amount", passiveKarmaGainAmount);
+        passiveKarmaGainInterval = getConfig().getInt("Passive Karma Gain.Interval");
+        debugMessage("Passive Karma gain interval", passiveKarmaGainInterval);
 
         passiveMobKillingEnabled = getConfig().getBoolean("Passive Mob Killing.Enabled");
+        debugMessage("Karma change on passive mob kill enabled", passiveMobKillingEnabled);
         passiveMobKillingAmount = getConfig().getDouble("Passive Mob Killing.Amount");
+        debugMessage("Karma change on passive mob kill amount", passiveMobKillingAmount);
 
         monsterKillingEnabled = getConfig().getBoolean("Monster Killing.Enabled");
+        debugMessage("Karma change on monster kill enabled", monsterKillingEnabled);
         monsterKillingAmount = getConfig().getDouble("Monster Killing.Amount");
+        debugMessage("Karma change on passive mob kill amount", monsterKillingAmount);
 
         friendlyMobKillingEnabled = getConfig().getBoolean("Friendly Mob Killing.Enabled");
+        debugMessage("Karma change on friendly mob kill enabled", friendlyMobKillingEnabled);
         friendlyMobKillingAmount = getConfig().getDouble("Friendly Mob Killing.Amount");
+        debugMessage("Karma change on passive mob kill amount", friendlyMobKillingAmount);
 
         playerKillingEnabled = getConfig().getBoolean("Player Killing.Enabled");
+        debugMessage("Karma change on player kill", playerKillingEnabled);
         playerHittingEnabled = getConfig().getBoolean("Player Hitting.Enabled");
+        debugMessage("Karma change on player hit", playerHittingEnabled);
 
         villagerTradingEnabled = getConfig().getBoolean("Villager Trading.Enabled");
+        debugMessage("Karma change on successful trade enabled", villagerTradingEnabled);
         villagerTradingAmount = getConfig().getDouble("Villager Trading.Amount");
+        debugMessage("Karma change on successful trade amount", villagerTradingAmount);
 
         villagerHittingEnabled = getConfig().getBoolean("Villager Hitting.Enabled");
+        debugMessage("Karma change on villager hit enabled", villagerHittingEnabled);
         villagerHittingAmount = getConfig().getDouble("Villager Hitting.Amount");
+        debugMessage("Karma change on villager hit amount", villagerHittingAmount);
 
         entityTamedEnabled = getConfig().getBoolean("Entity Tamed.Enabled");
+        debugMessage("Karma change on mob taming enabled", entityTamedEnabled);
         entityTamedAmount = getConfig().getDouble("Entity Tamed.Amount");
+        debugMessage("Karma change on mob taming amount", entityTamedAmount);
 
         entityFedEnabled = getConfig().getBoolean("Entity Fed.Enabled");
+        debugMessage("Karma change on mob feeding enabled", entityFedEnabled);
         entityFedAmount = getConfig().getDouble("Entity Fed.Amount");
+        debugMessage("Karma change on mob feeding amount", entityFedAmount);
 
         if (getServer().getPluginManager().getPlugin("Votifier") != null) {
             serverVotedEnabled = getConfig().getBoolean("Server Voted.Enabled");
         } else {
             serverVotedEnabled = false;
-            sendDebugMessage("[Karma]", "Disabled server voting rewards due to missing Dependency (Votifier).");
         }
+        debugMessage("Karma change on server vote enabled", serverVotedEnabled);
         serverVotedAmount = getConfig().getDouble("Server Voted.Amount");
+        debugMessage("Karma change on server vote amount", serverVotedAmount);
 
         goldenCarrotConsumedEnabled = getConfig().getBoolean("Golden Carrot Consumed.Enabled");
+        debugMessage("Karma change on golden carrot consumption enabled", goldenCarrotConsumedEnabled);
         goldenCarrotConsumedAmount = getConfig().getDouble("Golden Carrot Consumed.Amount");
+        debugMessage("Karma change on golden carrot consumption amount", goldenCarrotConsumedAmount);
 
         placingBlocksEnabled = getConfig().getBoolean("Placing Blocks.Enabled");
+        debugMessage("Karma change on blocks placed enabled", placingBlocksEnabled);
+        if (placingBlocksEnabled) {
+            for (String string : getConfig().getConfigurationSection("Placing Blocks.Blocks").getValues(false).keySet()) {
+                if (Material.valueOf(string).isBlock()) {
+                    placedBlocksMap.put(Material.valueOf(string), getConfig().getDouble("Placing Blocks.Blocks." + string));
+                    debugMessage("- " + string);
+                }
+            }
+        }
+
         breakingBlocksEnabled = getConfig().getBoolean("Breaking Blocks.Enabled");
+        debugMessage("Karma change on blocks destroyed enabled", breakingBlocksEnabled);
+
+        if (breakingBlocksEnabled) {
+            for (String string : getConfig().getConfigurationSection("Breaking Blocks.Blocks").getValues(false).keySet()) {
+                if (Material.valueOf(string).isBlock()) {
+                    brokenBlocksMap.put(Material.valueOf(string), getConfig().getDouble("Breaking Blocks.Blocks." + string));
+                    debugMessage("- " + string);
+                }
+            }
+        }
 
         messageSentEnabled = getConfig().getBoolean("Message Sent.Enabled");
+        debugMessage("Karma change on message sent enabled", messageSentEnabled);
+        if (messageSentEnabled) {
+            for (String word : getConfig().getConfigurationSection("Message Sent.Words").getValues(false).keySet()) {
+                karmaWordsMap.put(word, getConfig().getDouble("Message Sent.Words." + word));
+                debugMessage("- " + word);
+            }
+        }
 
         karmaTimeLimit = getConfig().getDouble("Karma Limit.Max Amount");
-        karmaLimitTimer = getConfig().getInt("Karma Limit.Timer");
+        karmaLimitInterval = getConfig().getInt("Karma Limit.Interval");
+        debugMessage("Amount of Karma a player can gain every " + karmaLimitInterval + " seconds", karmaTimeLimit);
 
-        percentageDecreaseEnabled = getConfig().getBoolean("Percentage Decrease.Enabled");
-        percentageDecreaseAmount = getConfig().getDouble("Percentage Decrease.Amount");
+        decreaseMultiplierEnabled = getConfig().getBoolean("Decrease Multiplier.Enabled");
+        debugMessage("Change in Karma gained upon gaining points from the same source repeatedly enabled", decreaseMultiplierEnabled);
+        decreaseMultiplierAmount = getConfig().getDouble("Decrease Multiplier.Amount");
+        debugMessage("Change in Karma gained upon gaining points from the same source repeatedly percent", decreaseMultiplierAmount + "%");
 
-        percentageIncreaseEnabled = getConfig().getBoolean("Percentage Increase.Enabled");
-        percentageIncreaseAmount = getConfig().getDouble("Percentage Increase.Amount");
-
-        for (String string : getConfig().getConfigurationSection("Placing Blocks.Blocks").getValues(false).keySet()) {
-            if (Material.valueOf(string).isBlock())
-                placedBlocksMap.put(Material.valueOf(string), getConfig().getDouble("Placing Blocks.Blocks." + string));
-        }
-
-        for (String string : getConfig().getConfigurationSection("Breaking Blocks.Blocks").getValues(false).keySet()) {
-            if (Material.valueOf(string).isBlock())
-                brokenBlocksMap.put(Material.valueOf(string), getConfig().getDouble("Breaking Blocks.Blocks." + string));
-        }
-
-        for (String word : getConfig().getConfigurationSection("Message Sent.Words").getValues(false).keySet()) {
-            karmaWordsMap.put(word, getConfig().getDouble("Message Sent.Words." + word));
-        }
+        increaseMultiplierEnabled = getConfig().getBoolean("Increase Multiplier.Enabled");
+        debugMessage("Change in Karma lost upon losing points from the same source repeatedly enabled", increaseMultiplierEnabled);
+        increaseMultiplierAmount = getConfig().getDouble("Increase Multiplier.Amount");
+        debugMessage("Change in Karma lost upon losing points from the same source repeatedly amount", increaseMultiplierAmount + "%");
 
         for (String effect : getConfig().getConfigurationSection("Effects.Positive").getValues(false).keySet()) {
             karmaPerkMap.put(effect, toPrimitiveArray(getConfig().getDoubleList("Effects.Positive." + effect).toArray(new Double[]{})));
         }
-
         for (String effect : getConfig().getConfigurationSection("Effects.Negative").getValues(false).keySet()) {
             if (effect.equalsIgnoreCase("mobs anger")) {
                 for (String subEffect : getConfig().getConfigurationSection("Effects.Negative." + effect).getValues(false).keySet()) {
@@ -276,15 +320,17 @@ public final class Karma extends JavaPlugin {
             } else
                 karmaRepercussionMap.put(effect, toPrimitiveArray(getConfig().getDoubleList("Effects.Negative." + effect).toArray(new Double[]{})));
         }
-
-        disabledWorldList = getConfig().getStringList("Disabled Worlds");
-
         for (KarmaAlignment alignment : KarmaAlignment.values()) {
-            alignmentCommands.put(alignment, (ArrayList<String>) getConfig().getStringList("Alignment Commands." + alignment.toString()));
+            alignmentCommands.put(alignment, getConfig().getStringList("Alignment Commands." + alignment.toString()));
         }
 
-        karmaHighLimit = KarmaAlignment.BEST.getHighBoundary();
-        karmaLowLimit = KarmaAlignment.EVIL.getLowBoundary();
+        karmaHighLimit = karmaEnumFetcher.getAlignmentHighBoundary(KarmaAlignment.BEST);
+        debugMessage("Karma Upper Limit", karmaHighLimit);
+        karmaLowLimit = karmaEnumFetcher.getAlignmentLowBoundary(KarmaAlignment.EVIL);
+        debugMessage("Karma Lower Limit", karmaLowLimit);
+
+        disabledWorldList = getConfig().getStringList("Disabled Worlds");
+        debugMessage("Disabled Worlds", disabledWorldList.toString());
     }
 
     public String getLanguage() {
@@ -302,7 +348,6 @@ public final class Karma extends JavaPlugin {
         reloadConfig();
         setupPreferences();
         settings.setupLanguage();
-        KarmaAlignment.loadAlignments(this, settings.getLang(), getConfig());
     }
 
 
@@ -362,7 +407,7 @@ public final class Karma extends JavaPlugin {
     }
 
 
-    public Map<KarmaAlignment, ArrayList<String>> getAlignmentCommandsMap() {
+    public Map<KarmaAlignment, List<String>> getAlignmentCommandsMap() {
         return alignmentCommands;
     }
 
@@ -414,7 +459,4 @@ public final class Karma extends JavaPlugin {
         return true;
     }
 
-    public Map<Player, BukkitTask> getAggroRunnables() {
-        return aggroRunnables;
-    }
 }

@@ -13,14 +13,7 @@ public enum Keyword {
         this.word = word;
     }
 
-    public String getWord() {
+    public String getDefaultKeyword() {
         return word;
-    }
-
-    public static void loadKeywords(ConfigurationSection section) {
-        Arrays.stream(values()).forEach(wrd -> {
-            if (section.isSet(wrd.name()))
-                wrd.word = section.getString(wrd.name());
-        });
     }
 }

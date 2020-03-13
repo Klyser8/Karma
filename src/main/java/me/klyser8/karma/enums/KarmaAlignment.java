@@ -11,17 +11,17 @@ import java.util.List;
 import static me.klyser8.karma.util.UtilMethods.isInteger;
 
 public enum KarmaAlignment {
-    EVIL("&4[Evil]", -2147483647, -50000, 0, 0),
-    VILE("&c[Vile]", -49999, -30000, 0, 0),
-    MEAN("&6[Mean]", -29999, -15000, 0, 0),
-    RUDE("&e[Rude]", -14999, -5000, 0, 0),
+    EVIL("&4[Evil]", -2147483647, -50000, 2.0, 50),
+    VILE("&c[Vile]", -49999, -30000, 1.5, 25),
+    MEAN("&6[Mean]", -29999, -15000, 1.0, 15),
+    RUDE("&e[Rude]", -14999, -5000, 0.5, 5),
 
     NEUTRAL("&7[Neutral]", -4999, 9999, 0, 0),
 
-    KIND("&a[Kind]", 10000, 24999, 0, 0),
-    GOOD("&2[Good]", 25000, 49999, 0, 0),
-    PURE("&9[Pure]", 50000, 99999, 0, 0),
-    BEST("&b[Best]", 100000, 2147483647, 0, 0);
+    KIND("&a[Kind]", 10000, 24999, -2.0, -15),
+    GOOD("&2[Good]", 25000, 49999, -3.0, -50),
+    PURE("&9[Pure]", 50000, 99999, -4.0, -100),
+    BEST("&b[Best]", 100000, 2147483647, -5.0, -250);
 
     private String name;
     private int lowBoundary;
@@ -37,38 +37,23 @@ public enum KarmaAlignment {
         this.killPenalty = killPenalty;
     }
 
-    public String getName() {
+    public String getDefaultName() {
         return name;
     }
 
-    public static void loadAlignments(Karma plugin, ConfigurationSection lang, ConfigurationSection config) {
-        Arrays.stream(values()).forEach(aln -> {
-            if (lang.isSet(aln.name())) {
-                aln.name = lang.getString(aln.name());
-                int[] thresholds = UtilMethods.toPrimitiveArray(config.getIntegerList("Alignment Thresholds." + aln.toString()).toArray(new Integer[]{}));
-                aln.lowBoundary = thresholds[0];
-                aln.highBoundary = thresholds[1];
-                if (plugin.playerHittingEnabled)
-                    aln.hitPenalty = config.getDouble("Player Hitting.Alignment Amount." + aln.toString());
-                if (plugin.playerKillingEnabled)
-                    aln.killPenalty = config.getDouble("Player Killing.Alignment Amount." + aln.toString());
-            }
-        });
-    }
-
-    public int getLowBoundary() {
+    public int getDefaultLowBoundary() {
         return lowBoundary;
     }
 
-    public int getHighBoundary() {
+    public int getDefaultHighBoundary() {
         return highBoundary;
     }
 
-    public double getHitPenalty() {
+    public double getDefaultHitPenalty() {
         return hitPenalty;
     }
 
-    public double getKillPenalty() {
+    public double getDefaultKillPenalty() {
         return killPenalty;
     }
 }

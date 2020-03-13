@@ -1,9 +1,6 @@
 package me.klyser8.karma.handlers;
 
 import me.klyser8.karma.Karma;
-import me.klyser8.karma.enums.Command;
-import me.klyser8.karma.enums.KarmaAlignment;
-import me.klyser8.karma.enums.Keyword;
 import me.klyser8.karma.enums.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,9 +8,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
-import static me.klyser8.karma.util.UtilMethods.color;
-import static me.klyser8.karma.util.UtilMethods.sendDebugMessage;
+import static me.klyser8.karma.util.UtilMethods.*;
 
 public class SettingsHandler {
 
@@ -36,63 +34,33 @@ public class SettingsHandler {
             //noinspection ResultOfMethodCallIgnored
             playersFolder.mkdir();
         }
-
-        File langFolder = new File(plugin.getDataFolder(), "lang");
-        //langFile = new File(plugin.getDataFolder(), "lang/english.yml");
-        //lang = YamlConfiguration.loadConfiguration(langFile);
-        if (!langFolder.exists()) {
-            plugin.saveResource("lang" + File.separator + "english.yml", false);
-            plugin.saveResource("lang" + File.separator + "italian.yml", false);
-            plugin.saveResource("lang" + File.separator + "simplified_chinese.yml", false);
-            plugin.saveResource("lang" + File.separator + "vietnamese.yml", false);
-            plugin.saveResource("lang" + File.separator + "spanish.yml", false);
-            plugin.saveResource("lang" + File.separator + "russian.yml", false);
-        } else {
-            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "english.yml").exists()) {
-                plugin.saveResource("lang" + File.separator + "english.yml", false);
-            }
-            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "italian.yml").exists()) {
-                plugin.saveResource("lang" + File.separator + "italian.yml", false);
-            }
-            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "simplified_chinese.yml").exists()) {
-                plugin.saveResource("lang" + File.separator + "simplified_chinese.yml", false);
-            }
-            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "vietnamese.yml").exists()) {
-                plugin.saveResource("lang" + File.separator + "vietnamese.yml", false);
-            }
-            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "spanish.yml").exists()) {
-                plugin.saveResource("lang" + File.separator + "spanish.yml", false);
-            }
-            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang" + File.separator + "russian.yml").exists()) {
-                plugin.saveResource("lang" + File.separator + "russian.yml", false);
-            }
-
+        List<String> languages = Arrays.asList("english", "italian", "spanish", "russian", "vietnamese", "simplified_chinese");
+        for (String language : languages) {
+            if (!new File(plugin.getDataFolder().getPath() + File.separator + "lang/" + language + ".yml").exists())
+                plugin.saveResource("lang/" + language + ".yml", false);
         }
     }
 
     public void setupLanguage() {
         String languageFile;
         plugin.setLanguage(plugin.getConfig().getString("Language").toLowerCase());
-        if (plugin.getLanguage().equalsIgnoreCase("italian")) {
-            languageFile = "italian.yml";
-        } else if (plugin.getLanguage().equalsIgnoreCase("simplified chinese")) {
-            languageFile = "simplified_chinese.yml";
-        } else if (plugin.getLanguage().equalsIgnoreCase("vietnamese")) {
-            languageFile = "vietnamese.yml";
-        } else if (plugin.getLanguage().equalsIgnoreCase("spanish")) {
-            languageFile = "spanish.yml";
-        } else if (plugin.getLanguage().equalsIgnoreCase("russian")) {
-            languageFile = "russian.yml";
-        } else {
-            languageFile = "english.yml";
+        switch (plugin.getLanguage().toLowerCase()) {
+            default: languageFile = "english.yml";
+                break;
+            case "italian": languageFile = "italian.yml";
+                break;
+            case "spanish": languageFile = "spanish.yml";
+                break;
+            case "russian": languageFile = "russian.yml";
+                break;
+            case "vietnamese": languageFile = "vietnamese.yml";
+                break;
+            case "simplified chinese": languageFile = "simplified_chinese.yml";
+                break;
         }
         langFile = new File(plugin.getDataFolder() + File.separator + "lang", languageFile);
         lang = YamlConfiguration.loadConfiguration(langFile);
-        Command.loadCommands(lang);
-        Message.loadMessages(lang);
-        Keyword.loadKeywords(lang);
-        //Bukkit.getLogger().info("Lang File: " + langFile + ", Lang config: " + lang);
-        sendDebugMessage("Language test", color(Message.KARMA_RELOAD.getMessage()));
+        debugMessage("Testing " + plugin.getLanguage(), new KarmaEnumFetcher(plugin).getMessageString(Message.RELOAD));
     }
 
     public FileConfiguration getLang() {
@@ -102,10 +70,6 @@ public class SettingsHandler {
         } else {
             return lang;
         }
-    }
-
-    public PluginDescriptionFile getDesc() {
-        return plugin.getDescription();
     }
 
 }

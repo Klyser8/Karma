@@ -1,14 +1,14 @@
-package me.klyser8.karma.handlers;
+package me.klyser8.karma.listeners;
 
 import me.klyser8.karma.Karma;
 import me.klyser8.karma.enums.KarmaAlignment;
 import me.klyser8.karma.enums.KarmaSource;
-import me.klyser8.karma.events.KarmaAlignmentChangeEvent;
 import me.klyser8.karma.events.KarmaGainEvent;
 import me.klyser8.karma.events.KarmaLossEvent;
+import me.klyser8.karma.handlers.KarmaEnumFetcher;
+import me.klyser8.karma.storage.PlayerData;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,29 +28,13 @@ import java.util.Random;
 
 import static me.klyser8.karma.util.UtilMethods.*;
 
-public class KarmaEffectsHandler implements Listener {
+public class KarmaEffectsListener implements Listener {
 
     private Karma plugin;
-    public KarmaEffectsHandler(Karma plugin) {
+    private int rudeHighBoundary;
+    public KarmaEffectsListener(Karma plugin) {
         this.plugin = plugin;
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                startAggroRunner(plugin, event.getPlayer());
-            }
-        }.runTaskLater(plugin, 20);
-    }
-
-    @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent event) {
-        if (plugin.getAggroRunnables().containsKey(event.getPlayer())) {
-            plugin.getAggroRunnables().get(event.getPlayer()).cancel();
-            plugin.getAggroRunnables().remove(event.getPlayer());
-        }
+        rudeHighBoundary = new KarmaEnumFetcher(plugin).getAlignmentHighBoundary(KarmaAlignment.RUDE);
     }
 
     @EventHandler
@@ -60,7 +44,7 @@ public class KarmaEffectsHandler implements Listener {
             double chance;
             PlayerData data = plugin.getStorageHandler().getPlayerData(event.getEntity().getKiller().getUniqueId());
             KarmaAlignment alignment = data.getKarmaAlignment();
-            if (data.getKarmaScore() <= KarmaAlignment.RUDE.getHighBoundary()) {
+            if (data.getKarmaScore() <= rudeHighBoundary) {
                 switch (alignment) {
                     case RUDE:
                         chance = plugin.getKarmaRepercussionMap().get("Drops")[0];
@@ -79,7 +63,6 @@ public class KarmaEffectsHandler implements Listener {
                 }
                 if (random.nextInt(100) < chance) {
                     event.getDrops().clear();
-                    sendDebugMessage("Drops cleared!");
                 }
             } else {
                 switch (alignment) {
@@ -102,7 +85,6 @@ public class KarmaEffectsHandler implements Listener {
                     if (event.getDrops().size() > 0) {
                         int dropNum = random.nextInt(event.getDrops().size());
                         event.getDrops().add(event.getDrops().get(dropNum));
-                        sendDebugMessage("Bonus drop!");
                     }
                 }
             }
@@ -115,8 +97,7 @@ public class KarmaEffectsHandler implements Listener {
         KarmaAlignment alignment = data.getKarmaAlignment();
         int ogExp = event.getAmount();
         double amount;
-        double baseAmount;
-        if (data.getKarmaScore() <= KarmaAlignment.RUDE.getHighBoundary()) {
+        if (data.getKarmaScore() <= rudeHighBoundary) {
             switch (alignment) {
                 case RUDE:
                     amount = plugin.getKarmaRepercussionMap().get("Experience")[0];
@@ -133,7 +114,7 @@ public class KarmaEffectsHandler implements Listener {
                 default:
                     amount = 1;
             }
-            event.setAmount((int) (event.getAmount() / amount));
+            event.setAmount((int) (event.getAmount() * amount));
         } else {
             switch (alignment) {
                 case KIND:
@@ -153,7 +134,7 @@ public class KarmaEffectsHandler implements Listener {
             }
             event.setAmount((int) Math.round(event.getAmount() * amount));
         }
-        sendDebugMessage("Original xp gained: " + ogExp, "Updated xp gained: " + event.getAmount());
+        debugMessage(event.getPlayer().getName() + " original xp gained: " + ogExp, "Updated xp gained: " + event.getAmount());
     }
 
     @EventHandler
@@ -165,9 +146,8 @@ public class KarmaEffectsHandler implements Listener {
             Random random = new Random();
             PlayerData data = plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId());
             KarmaAlignment alignment = data.getKarmaAlignment();
-            double baseChance;
             double chance;
-            if (data.getKarmaScore() <= KarmaAlignment.RUDE.getHighBoundary()) {
+            if (data.getKarmaScore() <= rudeHighBoundary) {
                 switch (alignment) {
                     case RUDE:
                         chance = plugin.getKarmaRepercussionMap().get("Mining")[0];
@@ -184,27 +164,25 @@ public class KarmaEffectsHandler implements Listener {
                     default:
                         chance = 0;
                 }
-                if (random.nextInt(100) < chance) {
-                    if (Karma.version.contains("1.15") || Karma.version.contains("1.14") || Karma.version.contains("1.13"))
-                        event.setDropItems(false);
-                    else {
-                        event.setCancelled(true);
-                        event.getBlock().setType(Material.AIR);
-                    }
-                    if (Karma.version.contains("1.8") || Karma.version.contains("1.9") || Karma.version.contains("1.10") ||
-                            Karma.version.contains("1.11") || Karma.version.contains("1.12")) {
-                        if (event.getBlock().getType() != Material.valueOf("QUARTZ_ORE"))
-                            world.dropItemNaturally(blockLoc, new ItemStack(Material.COBBLESTONE, 1));
-                        else
-                            world.dropItemNaturally(blockLoc, new ItemStack(Material.NETHERRACK, 1));
-                    } else {
-                        if (event.getBlock().getType() != Material.NETHER_QUARTZ_ORE)
-                            world.dropItemNaturally(blockLoc, new ItemStack(Material.COBBLESTONE, 1));
-                        else
-                            world.dropItemNaturally(blockLoc, new ItemStack(Material.NETHERRACK, 1));
-                    }
-                    event.setExpToDrop(0);
+                if (random.nextInt(100) > chance) return;
+                if (checkVersion("1.15", "1.14", "1.13"))
+                    event.setDropItems(false);
+                else {
+                    event.setCancelled(true);
+                    event.getBlock().setType(Material.AIR);
                 }
+                if (!checkVersion("1.15", "1.14", "1.13")) {
+                    if (event.getBlock().getType() != Material.valueOf("QUARTZ_ORE"))
+                        world.dropItemNaturally(blockLoc, new ItemStack(Material.COBBLESTONE, 1));
+                    else
+                        world.dropItemNaturally(blockLoc, new ItemStack(Material.NETHERRACK, 1));
+                } else {
+                    if (event.getBlock().getType() != Material.NETHER_QUARTZ_ORE)
+                        world.dropItemNaturally(blockLoc, new ItemStack(Material.COBBLESTONE, 1));
+                    else
+                        world.dropItemNaturally(blockLoc, new ItemStack(Material.NETHERRACK, 1));
+                }
+                event.setExpToDrop(0);
             } else {
                 switch (alignment) {
                     case KIND:
@@ -222,55 +200,53 @@ public class KarmaEffectsHandler implements Listener {
                     default:
                         chance = 0;
                 }
-                if (chance < chance) {
-                    if ((event.getBlock().getType() != Material.GOLD_ORE && event.getBlock().getType() != Material.IRON_ORE) &&
-                            (event.getPlayer().getItemInHand().getType() == Material.DIAMOND_PICKAXE ||
-                                    event.getPlayer().getItemInHand().getType() == Material.IRON_PICKAXE) &&
-                            !event.getPlayer().getItemInHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
-                        Material material = world.getBlockAt(blockLoc).getType();
-                        if (Karma.version.contains("1.15") || Karma.version.contains("1.14"))
-                            world.playSound(blockLoc, Sound.BLOCK_BELL_RESONATE, 1, 1.3F);
-                        else if (Karma.version.contains("1.13")) {
-                            new BukkitRunnable() {
-                                int timer = 1;
-
-                                @Override
-                                public void run() {
-                                    if (timer >= 4)
-                                        cancel();
-                                    world.playSound(blockLoc, Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-                                    timer++;
-                                }
-                            }.runTaskTimer(plugin, 6, 6);
-                        } else {
-                            new BukkitRunnable() {
-                                int timer = 1;
-
-                                @Override
-                                public void run() {
-                                    if (timer >= 4)
-                                        cancel();
-                                    if (!Karma.version.contains("1.8"))
-                                        world.playSound(blockLoc, Sound.valueOf("BLOCK_NOTE_BASS"), 1, 1);
-                                    else
-                                        world.playSound(blockLoc, Sound.valueOf("NOTE_BASS"), 1, 1);
-                                    timer++;
-                                }
-                            }.runTaskTimer(plugin, 6, 6);
-                        }
+                if (random.nextInt(100) > chance) return;
+                if ((event.getBlock().getType() != Material.GOLD_ORE && event.getBlock().getType() != Material.IRON_ORE) &&
+                        (event.getPlayer().getItemInHand().getType() == Material.DIAMOND_PICKAXE ||
+                                event.getPlayer().getItemInHand().getType() == Material.IRON_PICKAXE) &&
+                        !event.getPlayer().getItemInHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+                    Material material = world.getBlockAt(blockLoc).getType();
+                    if (checkVersion("1.15", "1.14"))
+                        world.playSound(blockLoc, Sound.BLOCK_BELL_RESONATE, 1, 1.3F);
+                    else if (checkVersion("1.13")) {
                         new BukkitRunnable() {
+                            int timer = 1;
                             @Override
                             public void run() {
-                                sendDebugMessage("Mineral re-generated", material.toString());
-                                world.getBlockAt(blockLoc).setType(material);
-                                if (!Karma.version.contains("1.8"))
-                                    world.playSound(blockLoc, Sound.BLOCK_STONE_PLACE, 1, 0.8F);
-                                else
-                                    world.playSound(blockLoc, Sound.valueOf("DIG_STONE"), 1, 0.8F);
+                                if (timer >= 4)
+                                    cancel();
+                                world.playSound(blockLoc, Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                                timer++;
                             }
-                        }.runTaskLater(plugin, 30);
+                        }.runTaskTimer(plugin, 6, 6);
+                    } else {
+                        new BukkitRunnable() {
+                            int timer = 1;
 
+                            @Override
+                            public void run() {
+                                if (timer >= 4)
+                                    cancel();
+                                if (!checkVersion("1.8"))
+                                    world.playSound(blockLoc, Sound.valueOf("BLOCK_NOTE_BASS"), 1, 1);
+                                else
+                                    world.playSound(blockLoc, Sound.valueOf("NOTE_BASS"), 1, 1);
+                                timer++;
+                            }
+                        }.runTaskTimer(plugin, 6, 6);
                     }
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            debugMessage("Mineral re-spawned at location", blockLoc);
+                            world.getBlockAt(blockLoc).setType(material);
+                            if (!checkVersion("1.8"))
+                                world.playSound(blockLoc, Sound.BLOCK_STONE_PLACE, 1, 0.8F);
+                            else
+                                world.playSound(blockLoc, Sound.valueOf("DIG_STONE"), 1, 0.8F);
+                        }
+                    }.runTaskLater(plugin, 30);
+
                 }
             }
         }
@@ -282,9 +258,8 @@ public class KarmaEffectsHandler implements Listener {
         double chance;
         PlayerData data = plugin.getStorageHandler().getPlayerData(event.getEnchanter().getUniqueId());
         KarmaAlignment alignment = data.getKarmaAlignment();
-        double baseChance;
-        boolean isVersionNew = !(Karma.version.contains("1.8") && Karma.version.contains("1.9") && Karma.version.contains("1.10"));
-        if (data.getKarmaScore() <= KarmaAlignment.RUDE.getHighBoundary()) {
+        boolean isVersionNew = !(checkVersion("1.8", "1.9", "1.10"));
+        if (data.getKarmaScore() <= rudeHighBoundary) {
             switch (alignment) {
                 case RUDE:
                     chance = plugin.getKarmaRepercussionMap().get("Enchanting")[0];
@@ -301,19 +276,16 @@ public class KarmaEffectsHandler implements Listener {
                 default:
                     chance = 0;
             }
-            if (random.nextInt(100) < chance) {
-                List<Enchantment> enchantments = new ArrayList<>(event.getEnchantsToAdd().keySet());
-                if (enchantments.size() > 1) {
-                    int removedEnchant = random.nextInt(event.getEnchantsToAdd().size());
-                    event.getEnchantsToAdd().remove(enchantments.get(removedEnchant));
-                    sendDebugMessage("Enchantment removed", "" + enchantments.get(removedEnchant));
-                    if (chance < chance / 2) {
-                        if (isVersionNew)
-                            event.getEnchantsToAdd().put(Enchantment.VANISHING_CURSE, 1);
-                    }
-                } else if (isVersionNew)
-                    event.getEnchantsToAdd().put(Enchantment.VANISHING_CURSE, 1);
-            }
+            if (random.nextInt(100) > chance) return;
+            List<Enchantment> enchantments = new ArrayList<>(event.getEnchantsToAdd().keySet());
+            if (enchantments.size() > 1) {
+                int removedEnchant = random.nextInt(event.getEnchantsToAdd().size());
+                event.getEnchantsToAdd().remove(enchantments.get(removedEnchant));
+                debugMessage("Enchantment removed from " + event.getEnchanter().getName() + "'s tool", "" + enchantments.get(removedEnchant));
+                if (chance > chance / 2 || !isVersionNew) return;
+                event.getEnchantsToAdd().put(Enchantment.VANISHING_CURSE, 1);
+            } else if (isVersionNew)
+                event.getEnchantsToAdd().put(Enchantment.VANISHING_CURSE, 1);
         } else {
             switch (alignment) {
                 case KIND:
@@ -331,44 +303,34 @@ public class KarmaEffectsHandler implements Listener {
                 default:
                     chance = 0;
             }
-            if (random.nextInt(100) < chance) {
-                Enchantment[] enchantments = Enchantment.values();
-                boolean enchantable = false;
-                if (event.getItem().getType() != Material.BOOK) {
-                    while (!enchantable) {
-                        int rnd = random.nextInt(Enchantment.values().length);
-                        if (isVersionNew) {
-                            if (enchantments[rnd].canEnchantItem(event.getItem()) && !enchantments[rnd].getKey().getKey().toLowerCase().contains("curse")) {
-                                enchantable = true;
-                                sendDebugMessage("Extra Enchantment", enchantments[rnd].toString());
-                                event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
-                            }
-                        } else {
-                            if (enchantments[rnd].canEnchantItem(event.getItem())) {
-                                Enchantment[] itemEnchants = event.getEnchantsToAdd().keySet().toArray(new Enchantment[0]);
-                                boolean canEnchant = true;
-                                for (Enchantment ench : itemEnchants) {
-                                    if (ench.conflictsWith(enchantments[rnd])) {
-                                        canEnchant = false;
-                                    }
-                                }
-                                if (canEnchant) {
-                                    enchantable = true;
-                                    sendDebugMessage("Extra Enchantment", enchantments[rnd].toString());
-                                    event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
-                                }
-                            }
+            if (random.nextInt(100) > chance) return;
+            Enchantment[] enchantments = Enchantment.values();
+            boolean enchantable = false;
+            if (event.getItem().getType() != Material.BOOK) {
+                while (!enchantable) {
+                    int rnd = random.nextInt(Enchantment.values().length);
+                    if (!enchantments[rnd].canEnchantItem(event.getItem()) || enchantments[rnd].getKey().getKey().toLowerCase().contains("curse")) return;
+                    Enchantment[] itemEnchants = event.getEnchantsToAdd().keySet().toArray(new Enchantment[0]);
+                    boolean canEnchant = true;
+                    for (Enchantment ench : itemEnchants) {
+                        if (ench.conflictsWith(enchantments[rnd])) {
+                            canEnchant = false;
+                            break;
                         }
                     }
-                } else {
-                    int rnd = random.nextInt(Enchantment.values().length);
-                    sendDebugMessage("Extra Enchantment", enchantments[rnd].toString());
-                    if (isVersionNew) {
-                        if (!enchantments[rnd].getKey().getKey().toLowerCase().contains("curse"))
-                            event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
-                    } else
-                        event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
+                    if (!canEnchant) return;
+                    enchantable = true;
+                    debugMessage("Extra Enchantment to " + event.getEnchanter().getName() + "'s tool", enchantments[rnd].toString());
+                    event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
                 }
+            } else {
+                int rnd = random.nextInt(Enchantment.values().length);
+                debugMessage("Extra Enchantment to " + event.getEnchanter().getName() + "'s tool", enchantments[rnd].toString());
+                if (isVersionNew) {
+                    if (!enchantments[rnd].getKey().getKey().toLowerCase().contains("curse"))
+                        event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
+                } else
+                    event.getEnchantsToAdd().put(enchantments[rnd], random.nextInt(enchantments[rnd].getMaxLevel()) + enchantments[rnd].getStartLevel());
             }
         }
     }
@@ -377,59 +339,53 @@ public class KarmaEffectsHandler implements Listener {
     public void onLightningStrike(LightningStrikeEvent event) {
         World world = event.getWorld();
         Player player = randomPlayer();
-        if (world.isThundering() && player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
-            Random random = new Random();
-            KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();
-            double chance;
-            switch (alignment) {
-                case RUDE:
-                    chance = plugin.getKarmaRepercussionMap().get("Lightning")[0];
-                    break;
-                case MEAN:
-                    chance = plugin.getKarmaRepercussionMap().get("Lightning")[1];
-                    break;
-                case VILE:
-                    chance = plugin.getKarmaRepercussionMap().get("Lightning")[2];
-                    break;
-                case EVIL:
-                    chance = plugin.getKarmaRepercussionMap().get("Lightning")[3];
-                    break;
-                default:
-                    chance = 0;
-            }
-            if (random.nextInt(100) < chance && event.getLightning().getLocation().distance(player.getLocation()) > 20) {
-                int time = random.nextInt(100) + 100;
-                sendDebugMessage("Lightning will strike near " + player.getName() + " in " + time / 20 + " seconds, unless they take cover.");
-                final Location[] oldLoc = {null};
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        oldLoc[0] = player.getLocation();
-                    }
-                }.runTaskLater(plugin, time - 20);
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        //Block block = world.getBlockAt(player.getLocation().setY(player.getLocation().getY() - 1)).getLightFromSky();
-                        if (world.isThundering() && player.getLocation().getBlock().getLightFromSky() == 15)
-                            world.strikeLightning(oldLoc[0]);
-                    }
-                }.runTaskLater(plugin, time);
-            }
+        if (!world.isThundering() || player.getGameMode() == GameMode.CREATIVE && player.getGameMode() == GameMode.SPECTATOR) return;
+        Random random = new Random();
+        KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();
+        double chance;
+        switch (alignment) {
+            case RUDE:
+                chance = plugin.getKarmaRepercussionMap().get("Lightning")[0];
+                break;
+            case MEAN:
+                chance = plugin.getKarmaRepercussionMap().get("Lightning")[1];
+                break;
+            case VILE:
+                chance = plugin.getKarmaRepercussionMap().get("Lightning")[2];
+                break;
+            case EVIL:
+                chance = plugin.getKarmaRepercussionMap().get("Lightning")[3];
+                break;
+            default:
+                chance = 0;
         }
+        if (random.nextInt(100) > chance || event.getLightning().getLocation().distance(player.getLocation()) < 20) return;
+        int time = random.nextInt(100) + 100;
+        debugMessage("Lightning will strike near " + player.getName() + " in " + time / 20 + " seconds, unless they take cover.");
+        final Location[] oldLoc = {null};
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                oldLoc[0] = player.getLocation();
+            }
+        }.runTaskLater(plugin, time - 20);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!world.isThundering() || player.getLocation().getBlock().getLightFromSky() != 15) return;
+                world.strikeLightning(oldLoc[0]);
+            }
+        }.runTaskLater(plugin, time);
     }
 
     @EventHandler
     public void onKarmaGain(KarmaGainEvent event) {
-        if (event.getNewKarma() > Karma.karmaHighLimit) {
-            event.setCancelled(true);
-            return;
-        }
         Player player = event.getPlayer();
+        PlayerData data = plugin.getStorageHandler().getPlayerData(player.getUniqueId());
         KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();
         double multiplier;
         if (event.getSource() != KarmaSource.COMMAND && event.getSource() != KarmaSource.VOTING) {
-            if (event.getOldKarma() < KarmaAlignment.RUDE.getHighBoundary()) {
+            if (event.getOldKarma() < rudeHighBoundary) {
                 switch (alignment) {
                     case RUDE:
                         multiplier = plugin.getKarmaRepercussionMap().get("Karma Gained")[0];
@@ -464,21 +420,20 @@ public class KarmaEffectsHandler implements Listener {
                         multiplier = 1;
                 }
             }
+            if (data.getLastSource() == event.getSource() && plugin.decreaseMultiplierEnabled)
+                multiplier *= plugin.decreaseMultiplierAmount;
             event.setAmount(event.getAmount() * multiplier);
         }
     }
 
     @EventHandler
     public void onKarmaLose(KarmaLossEvent event) {
-        if (event.getNewKarma() < Karma.karmaLowLimit) {
-            event.setCancelled(true);
-            return;
-        }
         Player player = event.getPlayer();
+        PlayerData data = plugin.getStorageHandler().getPlayerData(player.getUniqueId());
         KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();
         double multiplier;
         if (event.getSource() != KarmaSource.COMMAND && event.getSource() != KarmaSource.VOTING) {
-            if (event.getOldKarma() < KarmaAlignment.RUDE.getHighBoundary()) {
+            if (event.getOldKarma() < rudeHighBoundary) {
                 switch (alignment) {
                     case EVIL:
                         multiplier = plugin.getKarmaRepercussionMap().get("Karma Lost")[3];
@@ -513,6 +468,8 @@ public class KarmaEffectsHandler implements Listener {
                         multiplier = 1;
                 }
             }
+            if (data.getLastSource() == event.getSource() && plugin.increaseMultiplierEnabled)
+                multiplier *= plugin.increaseMultiplierAmount;
             event.setAmount(event.getAmount() * multiplier);
         }
     }
