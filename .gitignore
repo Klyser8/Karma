@@ -28,4 +28,5 @@ hs_err_pid*
 *.iml
 *.properties
 *.lst
-!/src/main/java/me/klyser8/karma/KarmaCommands.java
+*.-java
+
