@@ -3,7 +3,6 @@ package me.klyser8.karma;
 import me.klyser8.karma.enums.KarmaSource;
 import me.klyser8.karma.enums.Keyword;
 import me.klyser8.karma.handlers.KarmaHandler;
-import me.klyser8.karma.handlers.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -14,7 +13,11 @@ import static me.klyser8.karma.enums.Command.*;
 import static me.klyser8.karma.enums.Message.*;
 import static me.klyser8.karma.util.UtilMethods.*;
 
-public class KarmaCommands implements CommandExecutor, TabCompleter {
+/*
+Class is here for reference purposes only - it will be deleted in future versions.
+ */
+
+/*public class KarmaCommands implements CommandExecutor, TabCompleter {
 
     private Karma plugin;
     private KarmaHandler karma;
@@ -576,4 +579,4 @@ public class KarmaCommands implements CommandExecutor, TabCompleter {
         }
         return null;
     }
-}
+}*/
