@@ -112,7 +112,7 @@ public final class Karma extends JavaPlugin {
         karmaEnumFetcher = new KarmaEnumFetcher(this);
         KarmaHandler karmaHandler = new KarmaHandler(this);
         commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> sender.sendMessage(color("&cUnknown command. Type &6/Karma help&c for help.")));
-        commandManager.register(new ViewKarmaCommand(this, karmaHandler, karmaEnumFetcher));
+        commandManager.register(new ViewKarmaCommand(this, karmaEnumFetcher));
         commandManager.register(new ReloadKarmaCommand(this, karmaHandler, karmaEnumFetcher));
         commandManager.register(new SaveKarmaCommand(this, karmaHandler, karmaEnumFetcher));
         commandManager.register(new HelpKarmaCommand(this, karmaHandler, karmaEnumFetcher));

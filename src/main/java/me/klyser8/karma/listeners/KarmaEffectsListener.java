@@ -39,53 +39,53 @@ public class KarmaEffectsListener implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity().getKiller() != null) {
-            Random random = new Random();
-            double chance;
-            PlayerData data = plugin.getStorageHandler().getPlayerData(event.getEntity().getKiller().getUniqueId());
-            KarmaAlignment alignment = data.getKarmaAlignment();
-            if (data.getKarmaScore() <= rudeHighBoundary) {
-                switch (alignment) {
-                    case RUDE:
-                        chance = plugin.getKarmaRepercussionMap().get("Drops")[0];
-                        break;
-                    case MEAN:
-                        chance = plugin.getKarmaRepercussionMap().get("Drops")[1];
-                        break;
-                    case VILE:
-                        chance = plugin.getKarmaRepercussionMap().get("Drops")[2];
-                        break;
-                    case EVIL:
-                        chance = plugin.getKarmaRepercussionMap().get("Drops")[3];
-                        break;
-                    default:
-                        chance = 0;
-                }
-                if (random.nextInt(100) < chance) {
-                    event.getDrops().clear();
-                }
-            } else {
-                switch (alignment) {
-                    case KIND:
-                        chance = plugin.getKarmaPerkMap().get("Drops")[0];
-                        break;
-                    case GOOD:
-                        chance = plugin.getKarmaPerkMap().get("Drops")[1];
-                        break;
-                    case PURE:
-                        chance = plugin.getKarmaPerkMap().get("Drops")[2];
-                        break;
-                    case BEST:
-                        chance = plugin.getKarmaPerkMap().get("Drops")[3];
-                        break;
-                    default:
-                        chance = 0;
-                }
-                if (random.nextInt(100) < chance) {
-                    if (event.getDrops().size() > 0) {
-                        int dropNum = random.nextInt(event.getDrops().size());
-                        event.getDrops().add(event.getDrops().get(dropNum));
-                    }
+        if (event.getEntity().getKiller() == null) return;
+        Random random = new Random();
+        double chance;
+        PlayerData data = plugin.getStorageHandler().getPlayerData(event.getEntity().getKiller().getUniqueId());
+        if (data == null) return;
+        KarmaAlignment alignment = data.getKarmaAlignment();
+        if (data.getKarmaScore() <= rudeHighBoundary) {
+            switch (alignment) {
+                case RUDE:
+                    chance = plugin.getKarmaRepercussionMap().get("Drops")[0];
+                    break;
+                case MEAN:
+                    chance = plugin.getKarmaRepercussionMap().get("Drops")[1];
+                    break;
+                case VILE:
+                    chance = plugin.getKarmaRepercussionMap().get("Drops")[2];
+                    break;
+                case EVIL:
+                    chance = plugin.getKarmaRepercussionMap().get("Drops")[3];
+                    break;
+                default:
+                    chance = 0;
+            }
+            if (random.nextInt(100) < chance) {
+                event.getDrops().clear();
+            }
+        } else {
+            switch (alignment) {
+                case KIND:
+                    chance = plugin.getKarmaPerkMap().get("Drops")[0];
+                    break;
+                case GOOD:
+                    chance = plugin.getKarmaPerkMap().get("Drops")[1];
+                    break;
+                case PURE:
+                    chance = plugin.getKarmaPerkMap().get("Drops")[2];
+                    break;
+                case BEST:
+                    chance = plugin.getKarmaPerkMap().get("Drops")[3];
+                    break;
+                default:
+                    chance = 0;
+            }
+            if (random.nextInt(100) < chance) {
+                if (event.getDrops().size() > 0) {
+                    int dropNum = random.nextInt(event.getDrops().size());
+                    event.getDrops().add(event.getDrops().get(dropNum));
                 }
             }
         }
@@ -339,6 +339,7 @@ public class KarmaEffectsListener implements Listener {
     public void onLightningStrike(LightningStrikeEvent event) {
         World world = event.getWorld();
         Player player = randomPlayer();
+        if (player == null) return;
         if (!world.isThundering() || player.getGameMode() == GameMode.CREATIVE && player.getGameMode() == GameMode.SPECTATOR) return;
         Random random = new Random();
         KarmaAlignment alignment = plugin.getStorageHandler().getPlayerData(player.getUniqueId()).getKarmaAlignment();

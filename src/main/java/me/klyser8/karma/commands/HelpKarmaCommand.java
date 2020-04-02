@@ -33,6 +33,14 @@ public class HelpKarmaCommand extends CommandBase {
     public void helpCommand(CommandSender sender, String[] args) {
         boolean isOp = sender.isOp();
         sender.sendMessage(color("&5--------- &r" + fetcher.getCommandString(HELP_COMMAND).toUpperCase() + " &5---------------------------"));
+        String viewCommand = "";
+        if (sender.hasPermission("karma.commands.view.others") || isOp)
+            viewCommand = fetcher.getMessageString(Message.HELP_VIEW)
+                    .replace("<VIEW_COMMAND>", "/Karma [" + fetcher.getKeywordString(Keyword.PLAYER).toLowerCase() + "]");
+        else if (sender.hasPermission("karma.commands.view.self"))
+            viewCommand = fetcher.getMessageString(Message.HELP_VIEW)
+                    .replace("<VIEW_COMMAND>", "/Karma");
+        sender.sendMessage(viewCommand);
         if (sender.hasPermission("karma.commands.help") || isOp)
             sender.sendMessage(fetcher.getMessageString(Message.HELP_HELP)
                     .replace("<HELP_COMMAND>", "/Karma " + fetcher.getCommandString(HELP_COMMAND).toLowerCase()));
@@ -43,14 +51,6 @@ public class HelpKarmaCommand extends CommandBase {
             sender.sendMessage(fetcher.getMessageString(Message.HELP_SAVE)
                     .replace("<SAVE_COMMAND>", "/Karma " + fetcher.getCommandString(SAVE_COMMAND).toLowerCase()));
 
-        String viewCommand = "";
-        if (sender.hasPermission("karma.commands.view.others") || isOp)
-            viewCommand = fetcher.getMessageString(Message.HELP_VIEW)
-                .replace("<VIEW_COMMAND>", "/Karma " + fetcher.getCommandString(VIEW_COMMAND).toLowerCase() + " [" + fetcher.getKeywordString(Keyword.PLAYER).toLowerCase() + "]");
-        else if (sender.hasPermission("karma.commands.view.self"))
-            viewCommand = fetcher.getMessageString(Message.HELP_VIEW)
-                    .replace("<VIEW_COMMAND>", "/Karma " + fetcher.getCommandString(VIEW_COMMAND).toLowerCase());
-        sender.sendMessage(viewCommand);
         if (sender.hasPermission("karma.commands.add") || isOp)
             sender.sendMessage(fetcher.getMessageString(Message.HELP_ADD)
                     .replace("<ADD_COMMAND>", "/Karma " + fetcher.getCommandString(ADD_COMMAND).toLowerCase() + " <" + fetcher.getKeywordString(Keyword.PLAYER).toLowerCase() + "> <" + fetcher.getKeywordString(Keyword.NUMBER).toLowerCase() + ">"));

@@ -36,9 +36,9 @@ public class ClearKarmaCommand extends CommandBase {
             return;
         }
         if (sender.getName().equalsIgnoreCase(player)) {
-            sender.sendMessage(fetcher.getMessageString(Message.SCORE_CLEARED_SUCCESSFULLY));
+            sender.sendMessage(fetcher.getMessageString(Message.SCORE_CLEARED_SUCCESSFULLY_SELF));
         } else {
-            sender.sendMessage(fetcher.getMessageString(Message.SCORE_CLEARED_SUCCESSFULLY_SELF).replace("<PLAYER>", player));
+            sender.sendMessage(fetcher.getMessageString(Message.SCORE_CLEARED_SUCCESSFULLY).replace("<PLAYER>", player));
         }
         data.setKarmaScore(0, KarmaSource.COMMAND);
     }

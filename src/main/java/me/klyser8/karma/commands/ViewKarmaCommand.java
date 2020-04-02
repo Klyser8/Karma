@@ -8,29 +8,33 @@ import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.CommandBase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static me.klyser8.karma.util.UtilMethods.color;
+
 @Command("karma")
 public class ViewKarmaCommand extends CommandBase {
 
     private Karma plugin;
-    private KarmaHandler karma;
     private KarmaEnumFetcher fetcher;
-    public ViewKarmaCommand(Karma plugin, KarmaHandler karma, KarmaEnumFetcher fetcher) {
+    public ViewKarmaCommand(Karma plugin, KarmaEnumFetcher fetcher) {
         this.plugin = plugin;
-        this.karma = karma;
         this.fetcher = fetcher;
     }
 
     @Default
-    @SubCommand("view")
     public void viewCommand(CommandSender sender, @Optional String player) {
         if (player == null) {
             if (!sender.hasPermission("karma.command.view.self")) return;
+            if (sender instanceof ConsoleCommandSender) {
+                sender.sendMessage(color("&4Please specify a player."));
+                return;
+            }
             sender.sendMessage(fetcher.getMessageString(Message.VIEW_SCORE_SELF).replace("<NUMBER>", String.valueOf(plugin.getPlayerKarma((Player) sender))));
             sender.sendMessage(fetcher.getMessageString(Message.VIEW_ALIGNMENT_SELF)
                     .replace("<ALIGNMENT>", String.valueOf(fetcher.getAlignmentName(plugin.getPlayerAlignment((Player) sender)))));

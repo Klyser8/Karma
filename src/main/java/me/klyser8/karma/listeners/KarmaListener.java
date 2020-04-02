@@ -40,8 +40,9 @@ public class KarmaListener extends KarmaHandler implements Listener {
         if (event.getEntity().getKiller() == null) return;
         if (plugin.friendlyMobKillingEnabled) {
             //if (Karma.VERSION.contains("1.15")) {
-                if (event.getEntity() instanceof Wolf || event.getEntity() instanceof Cat || event.getEntity() instanceof Dolphin ||
-                        event.getEntity() instanceof Parrot || event.getEntity() instanceof Bee) {
+                if (event.getEntity() instanceof Tameable ||
+                        ((Karma.VERSION.contains("1.13") || Karma.VERSION.contains("1.14") || Karma.VERSION.contains("1.15")) && event.getEntity() instanceof Dolphin) ||
+                        (Karma.VERSION.contains("1.15") &&event.getEntity() instanceof Bee)) {
                     changeKarmaScore(event.getEntity().getKiller(), plugin.friendlyMobKillingAmount, KarmaSource.MOB);
                     return;
                 }
@@ -93,7 +94,7 @@ public class KarmaListener extends KarmaHandler implements Listener {
         if (plugin.villagerHittingEnabled && (event.getEntity() instanceof Merchant)) {
             Player player = null;
             if (event.getDamager() instanceof Projectile && ((Projectile) event.getDamager()).getShooter() instanceof Player &&
-            !((Entity) ((Projectile) event.getDamager()).getShooter()).hasMetadata("NPC")) {
+            !(((Projectile) event.getDamager()).getShooter() instanceof NPC)) {
                 player = (Player) ((Projectile) event.getDamager()).getShooter();
             } else if (event.getDamager() instanceof Player) {
                 player = (Player) event.getDamager();
@@ -166,11 +167,12 @@ public class KarmaListener extends KarmaHandler implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         if (plugin.chatAlignments) {
+            KarmaEnumFetcher fetcher = new KarmaEnumFetcher(plugin);
             if (plugin.showAlignments) {
-                String alignment = plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment().getDefaultName();
+                String alignment = fetcher.getAlignmentName(plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment());
                 event.setFormat(color(alignment + "&r" + " <" + event.getPlayer().getDisplayName() + "> ") + event.getMessage());
             } else {
-                CharSequence color = plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment().getDefaultName().subSequence(0, 2);
+                CharSequence color = fetcher.getAlignmentName(plugin.getStorageHandler().getPlayerData(event.getPlayer().getUniqueId()).getKarmaAlignment()).subSequence(0, 2);
                 event.setFormat(event.getFormat().replace("%1$s", color(color + event.getPlayer().getName() + "&r")));
                 event.setFormat(event.getFormat().replace(event.getPlayer().getName(), color(color + event.getPlayer().getName() + "&r")));
             }

@@ -152,16 +152,23 @@ public class KarmaHandler {
             }
             data.setKarmaAlignment(alignment, true);
             if (!plugin.tablistAlignments) continue;
-            if (player.getPlayerListName().equalsIgnoreCase(player.getDisplayName())) {
-                player.setPlayerListName(color(alignment.getDefaultName() + "&r ") + player.getDisplayName());
+            if (plugin.showAlignments) {
+                player.setPlayerListName(color(fetcher.getAlignmentName(alignment) + "&r ") + player.getName());
+            } else {
+                CharSequence color = fetcher.getAlignmentName(alignment).subSequence(0, 2);
+                player.setPlayerListName(color(color + player.getName()));
+            }
+            /*if (player.getPlayerListName().equalsIgnoreCase(player.getName())) {
+                player.setPlayerListName(color(fetcher.getAlignmentName(alignment) + "&r ") + player.getName());
+                debugMessage(player.getName() + "'s alignment updated to: ", fetcher.getAlignmentName(alignment));
             } else {
                 if (plugin.showAlignments) {
-                    player.setPlayerListName(color(alignment.getDefaultName() + "&r ") + player.getDisplayName());
+                    player.setPlayerListName(color(fetcher.getAlignmentName(alignment) + "&r ") + player.getDisplayName());
                 } else {
-                    CharSequence color = alignment.getDefaultName().subSequence(0, 2);
+                    CharSequence color = fetcher.getAlignmentName(alignment).subSequence(0, 2);
                     player.setPlayerListName(color(color + player.getDisplayName()));
                 }
-            }
+            }*/
         }
     }
 
