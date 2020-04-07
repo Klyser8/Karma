@@ -1,6 +1,6 @@
 name: Karma
 version: ${project.version}
-main: me.klyser8.karma.Karma
+main: com.github.klyser8.karma.KarmaPlugin
 api-version: 1.13
 authors: [Klyser8]
 softdepend: [PlaceholderAPI, Vault, Votifier]
